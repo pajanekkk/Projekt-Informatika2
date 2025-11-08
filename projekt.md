@@ -18,5 +18,5 @@ Budete hrát za tank, který se bude pohybovat na mapě ve stylu starých ploši
 
 
 ### Zmeny v README.md
-15.10.2025 - první verze
-08.11.2025 - přepracování tématu ze Space Defender na TankHopHop
+*15.10.2025 - první verze*
+*08.11.2025 - přepracování tématu ze Space Defender na TankHopHop*
