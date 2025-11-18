@@ -1,4 +1,4 @@
-*Autor: des. ček. Pavel Hovjadský*
+*Autor: des. ček. Pavel Hovjadský
 *Datum vytvoření: 19.11.2025*
 
 # Space defender
