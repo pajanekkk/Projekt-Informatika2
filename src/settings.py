@@ -1,0 +1,11 @@
+WINDOW_WIDTH = 800
+WINDOW_HEIGHT = 600
+FPS = 60
+
+PLAYER_SPEED = 300          # pixely za sekundu
+BULLET_SPEED = 500
+ENEMY_SPEED = 150
+
+ENEMY_SPAWN_INTERVAL = 1.0  # v sekundách
+
+PLAYER_LIVES = 3
