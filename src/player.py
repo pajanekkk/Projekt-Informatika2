@@ -1,5 +1,6 @@
 import pygame
 from src.settings import *
+from src.bullet import Bullet
 
 PLAYER_COLOR = (0, 255, 0)
 
@@ -47,3 +48,8 @@ class Player:
         Vykresleni hrace na obrazovku
         """
         pygame.draw.rect(surface, PLAYER_COLOR, self.rect)
+    
+    def shoot(self) -> Bullet:
+        bullet_x = self.rect.centerx
+        bullet_y = self.rect.top
+        return Bullet(bullet_x, bullet_y)

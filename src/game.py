@@ -1,11 +1,12 @@
 # Game.py slouzi k zakladnim funkcim, ktere umoznuji aby se hra spustila, bezela dobre, napr. vytvoreni okna atd...
 
 import pygame
+import random
 from src.player import *
 from src.settings import *
-
+from src.bullet import *
 class Game:
-    def __init__(self):
+    def __init__(self) -> None:
         pygame.init()
 
         self.screen = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
@@ -26,14 +27,14 @@ class Game:
 
         self.running = True
 
-    def run(self):
+    def run(self) -> None:
         while self.running:
             dt = self._get_delta_time()
             self._handle_events(dt)
 
             self._draw()
 
-    def _get_delta_time(self):
+    def _get_delta_time(self) -> float:
         """
         funkce aby rychlost nepratel + hrace byla konstantne stejna a nebyla zavisla na FPS
         napr. pohyb 20 pixelu za sekundu a ne 20 pixelu za snimek
@@ -42,7 +43,7 @@ class Game:
         dt = dt_ms / 1000.0
         return dt
     
-    def _handle_events(self, dt):
+    def _handle_events(self, dt) -> None:
         """
         funkce pro zpracovani eventu, jako je quit, nebo zmacknuti klaves pro strileni atd.
         """
@@ -53,7 +54,7 @@ class Game:
         pressed_keys = pygame.key.get_pressed()
         self.player.handle_input(pressed_keys, dt)
 
-    def _draw(self):
+    def _draw(self) -> None:
         self.screen.fill((255, 255, 255))
 
         self.player.draw(self.screen)
