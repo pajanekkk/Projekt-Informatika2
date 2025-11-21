@@ -1,6 +1,5 @@
 from src.game import *
-from pygame.locals import *
-
+import pygame
 
 game = Game()
 
