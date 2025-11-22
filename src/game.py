@@ -1,5 +1,6 @@
-# Game.py slouzi k zakladnim funkcim, ktere umoznuji aby se hra spustila, bezela dobre, napr. vytvoreni okna atd...
-
+"""
+Slouzi k zakladnim funkcim, ktere umoznuji aby se hra spustila, bezela dobre, napr. vytvoreni okna atd...
+"""
 import pygame
 import random
 from src.player import *
@@ -47,17 +48,22 @@ class Game:
         """
         funkce pro zpracovani eventu, jako je quit, nebo zmacknuti klaves pro strileni atd.
         """
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                self.running = False
-
         pressed_keys = pygame.key.get_pressed()
         self.player.handle_input(pressed_keys, dt)
+        
+        for event in pygame.event.get():
+            # exit
+            if event.type == pygame.QUIT:
+                self.running = False
+            
+            # strelba
+            if event.type == pygame.KEYDOWN or event.type == pygame.KEYUP:
+                if pressed_keys[pygame.K_SPACE]:
+                    new_bullet = self.player.shoot()
+                    self.bullets.append(new_bullet)
+        
+            
 
-        # strelba
-        if pressed_keys[pygame.K_SPACE]:
-            new_bullet = self.player.shoot()
-            self.bullets.append(new_bullet)
     
     def _update(self, dt: float) -> None:
         self.player.update(dt)

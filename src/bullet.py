@@ -1,4 +1,6 @@
-# Zpracovani střel
+"""
+Zpracovani střel
+"""
 import pygame
 from src.player import *
 from src.settings import *

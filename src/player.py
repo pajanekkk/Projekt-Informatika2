@@ -1,3 +1,6 @@
+"""
+Slouzi k implementaci funkci pro tridu hrace
+"""
 import pygame
 from src.settings import *
 from src.bullet import Bullet
