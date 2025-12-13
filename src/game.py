@@ -6,6 +6,8 @@ import random
 from src.player import *
 from src.settings import *
 from src.bullet import *
+from src.enemy import *
+
 class Game:
     def __init__(self) -> None:
         pygame.init()
@@ -22,6 +24,7 @@ class Game:
         # do techto poli se budou nahravet vytvorene "entity"
         self.bullets = []
         self.enemies = []
+        self.enemy_spawn_timer = 0.0
 
         self.score = 0
         self.lives = PLAYER_LIVES
@@ -62,10 +65,62 @@ class Game:
                     new_bullet = self.player.shoot()
                     self.bullets.append(new_bullet)
         
-            
 
-    
+    def _spawn_enemy(self, dt: float) -> None:
+        """
+        vytvori nepritele lehce nad obrazovkou, tenhle system je actually celkem bad,
+        zkousim pouze jestli enemy funguje spravne
+        """
+        self.enemy_spawn_timer += dt
+
+        """ if self.enemy_spawn_timer >= ENEMY_SPAWN_INTERVAL:
+            self.enemy_spawn_timer = 0.0 """
+
+        x = random.randint(ENEMY_WIDTH // 2, WINDOW_WIDTH - ENEMY_WIDTH // 2)    
+        y = -ENEMY_HEIGHT
+
+        new_enemy = Enemy(x, y)
+        self.enemies.append(new_enemy)
+       # TODO: aktualizuj na system po vlnach asi?
+
+    def _check_collisions(self) -> None:
+        """
+        checkuje kolize, tzn. jestli se enemy a bullet stretnou atd,
+        if yes -> tak je smaze, atd
+        """
+        # tady se budou pridavat entity, ktere budou smazany
+        bullets_to_remove = []
+        enemies_to_remove = []
+        
+
+        for bullet in self.bullets:
+            for enemy in self.enemies:
+                if bullet.rect.colliderect(enemy.rect):
+                    bullets_to_remove.append(bullet)
+                    enemies_to_remove.append(enemy)
+                    self.score += 1
+        
+        # odstrani trefene objekty
+        self.bullets = [b for b in self.bullets if b not in bullets_to_remove]
+        self.enemies = [e for e in self.enemies if e not in enemies_to_remove]
+
+        # pole pro nepratele, kteri zasahnou hrace
+        enemies_hit_player = []
+        for enemy in self.enemies:
+            if enemy.rect.colliderect(self.player.rect):
+                enemies_hit_player.append(enemy)
+                self.lives -= 1
+
+        # smaze enemaky, co narazi do playera
+        self.enemies = [e for e in self.enemies if e not in enemies_hit_player]
+
+        # game over - zatim jenom zavre program
+        # TODO: bude to vypadat lip, pinky promise :((
+        if self.lives <= 0:
+            self.running = False
+
     def _update(self, dt: float) -> None:
+
         self.player.update(dt)
 
         # update strel
@@ -75,16 +130,38 @@ class Game:
         # smazat strely mimo okno
         self.bullets = [b for b in self.bullets if not b.is_offscreen()]
 
-        # tady pak budou enemies - TODO
+        # update enemies
+        for enemy in self.enemies:
+            enemy.update(dt)
+        
+        # spawn novych enemies
+        self._spawn_enemy(dt)
+
+        # kolize
+        self._check_collisions()
+
+        # mazani enemies, kteri jsou mimo hraci okno
+        self.enemies = [e for e in self.enemies if not e.is_offscreen()]
+
 
 
     def _draw(self) -> None:
+        """
+        vykreslovani na obrazovku
+        """
         self.screen.fill((0, 0, 0))
         self.player.draw(self.screen)
 
         for bullet in self.bullets:
             bullet.draw(self.screen)
 
-        # TODO - skore, zivoty
+        for enemy in self.enemies:
+            enemy.draw(self.screen)
         
+        # text na skore a zivoty
+        font = pygame.font.SysFont(None, 24)
+        text_surface = font.render(f"Skóre: {self.score} Zivoty: {self.lives}", True, (255, 255, 255))
+        self.screen.blit(text_surface, (10, 10))
+
+
         pygame.display.flip()

@@ -17,7 +17,9 @@ BULLET_HEIGHT = 10
 
 
 ENEMY_SPEED = 150           # pixely za sekundu
+ENEMY_WIDTH = 40
+ENEMY_HEIGHT = 25
 
-ENEMY_SPAWN_INTERVAL = 1.0  # v sekundách
+ENEMY_SPAWN_INTERVAL = 5000.0  # v sekundách
 
 
