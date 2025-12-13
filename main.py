@@ -1,4 +1,4 @@
- from src.game import *
+from src.game import *
 import pygame     
 
 
