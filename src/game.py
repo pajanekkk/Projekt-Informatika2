@@ -30,14 +30,21 @@ class Game:
 
         self.score = 0
         self.lives = PLAYER_LIVES
+        # false - normalni hra
+        # true - konec
+        self.game_over = False
 
         self.running = True
 
     def run(self) -> None:
         while self.running:
             dt = self._get_delta_time()
+            
             self._handle_events(dt)
-            self._update(dt)
+            
+            if not self.game_over:
+                self._update(dt)
+            
             self._draw()
 
     def _get_delta_time(self) -> float:
@@ -66,7 +73,18 @@ class Game:
                 if pressed_keys[pygame.K_SPACE]:
                     new_bullet = self.player.shoot()
                     self.bullets.append(new_bullet)
-        
+        if self.game_over:
+            if pressed_keys[pygame.K_r]:
+                self._restart_game()
+
+    def _restart_game(self):
+        self.bullets.clear()
+        self.enemies.clear()
+
+        self.lives = PLAYER_LIVES
+        self.score = 0
+
+        self.game_over = False
 
     def _spawn_start_enemies(self) -> None:
         """
@@ -126,7 +144,7 @@ class Game:
         # game over - zatim jenom zavre program
         # TODO: bude to vypadat lip, pinky promise :((
         if self.lives <= 0:
-            self.running = False
+            self.game_over = True
 
     def _update(self, dt: float) -> None:
 
@@ -172,6 +190,19 @@ class Game:
         font = pygame.font.SysFont(None, 24)
         text_surface = font.render(f"Skóre: {self.score} Zivoty: {self.lives}", True, (255, 255, 255))
         self.screen.blit(text_surface, (10, 10))
+        
+        if self.game_over:
+            # go - game over, r - restart
+            font_go = pygame.font.SysFont(None, 48)
+            font_r = pygame.font.SysFont(None, 28)
+                
+            text1 = font_go.render("PROHRÁL SI!", True, (255, 0, 0))
+            text2 = font_r.render("ZMÁČKNI 'R' PRO RESTART HRY!", True, (255, 255, 255))
 
+            rect1 = text1.get_rect(center=(WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2 - 20))
+            rect2 = text2.get_rect(center=(WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2 + 20))
+
+            self.screen.blit(text1, rect1)
+            self.screen.blit(text2, rect2)
 
         pygame.display.flip()
