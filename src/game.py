@@ -25,9 +25,14 @@ class Game:
         self.bullets = []
         self.enemies = []
 
-        self.curr_wave = 0
-        self.enemies_in_wave = 5 # zatim pevny pocet
+        self.enemy_speed = ENEMY_SPEED
+
+        self.enemies_in_wave = random.randint(1, 5)
         self.wave_active = True
+        self.curr_wave = 0
+        self.wave_pause = False
+        self.wave_p_timer = 0.0
+        self.wave_p_dur = 3.0
 
         self.score = 0
         self.lives = PLAYER_LIVES
@@ -96,6 +101,7 @@ class Game:
 
         self.lives = PLAYER_LIVES
         self.score = 0
+        self.curr_wave = 0
 
         self.game_over = False
 
@@ -109,20 +115,6 @@ class Game:
             y = random.randint(-300, -ENEMY_HEIGHT)
             self.enemies.append(Enemy(x, y))
 
-
-    # def _handle_waves(self, dt: float) -> None:
-    #     """
-    #     pridava nepratele po vlnach
-    #     """
-    #     self.wave_timer += dt
-
-    #     if self.wave_timer >= WAVE_INTERVAL:
-    #         self.wave_timer = 0.0
-        
-    #         for _ in range(WAVE_ENEMY):
-    #             x = random.randint(ENEMY_WIDTH // 2, WINDOW_WIDTH - ENEMY_WIDTH // 2)
-    #             y = -ENEMY_HEIGHT
-    #             self.enemies.append(Enemy(x, y))
 
     def _check_collisions(self) -> None:
         """
@@ -155,8 +147,7 @@ class Game:
         # smaze enemaky, co narazi do playera
         self.enemies = [e for e in self.enemies if e not in enemies_hit_player]
 
-        # game over - zatim jenom zavre program
-        # TODO: bude to vypadat lip, pinky promise :((
+        # game over
         if self.lives <= 0:
             self.game_over = True
 
@@ -175,21 +166,28 @@ class Game:
         for enemy in self.enemies:
             enemy.update(dt)
         
-        # spawn novych enemies
-        # self._handle_waves(dt)
-        
-
         # kolize
         self._check_collisions()
 
         # mazani enemies, kteri jsou mimo hraci okno
         self.enemies = [e for e in self.enemies if not e.is_offscreen()]
+
+        # dalsi vlna
         if self.wave_active and len(self.enemies) == 0:
             self.wave_active = False
-            self.curr_wave += 1
-            self._start_wave()
+            self.wave_pause = True
+            self.wave_p_timer = 0.0
 
+        # mezipauza u vln
+        if self.wave_pause:
+            self.wave_p_timer += dt
+            if self.wave_p_timer >= self.wave_p_dur:
+                self.wave_pause = False
+                self.curr_wave += 1
+                # zvyseni obtiznosti
+                self.enemies_in_wave += 1
 
+                self._start_wave()
 
     def _draw(self) -> None:
         """
@@ -204,15 +202,21 @@ class Game:
         for enemy in self.enemies:
             enemy.draw(self.screen)
         
-        # text na skore a zivoty
+        # text pro skore a zivoty
         font_surf = pygame.font.SysFont(None, 24)
-        text_surface = font_surf.render(f"Skóre: {self.score} Zivoty: {self.lives}", True, (255, 255, 255))
+        text_surface = font_surf.render(f"Skóre: {self.score} Životy: {self.lives}", True, (255, 255, 255))
         self.screen.blit(text_surface, (10, 10))
         # text pro vlny
         font_wave = pygame.font.SysFont(None, 24)
         text_wave = font_wave.render(f"Vlna: {self.curr_wave}", True, (255, 255, 255))
         self.screen.blit(text_wave, (10, 30))
-        
+
+        # vykresleni mezipauzy u vln
+        if self.wave_pause and not self.curr_wave == 0:
+            font_wp = pygame.font.SysFont(None, 36)
+            text_wp = font_wp.render(f"Vlna {self.curr_wave} poražena!", True, (255, 255, 255))
+            rect_wp = text_wp.get_rect(center=(WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2 - 20))
+            self.screen.blit(text_wp, rect_wp)
 
         # vykresleni prohry
         if self.game_over:

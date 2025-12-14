@@ -16,7 +16,7 @@ BULLET_WIDTH = 5
 BULLET_HEIGHT = 10
 
 
-ENEMY_SPEED = 150           # pixely za sekundu
+ENEMY_SPEED = 120           # pixely za sekundu
 ENEMY_WIDTH = 40
 ENEMY_HEIGHT = 25
 

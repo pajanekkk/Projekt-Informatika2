@@ -20,7 +20,6 @@ class Bullet:
         """
         proste update funkce lol
         """
-        
         dy = -self.speed * dt # dy je vertikalni osa
         self.rect.y += int(dy)
 
