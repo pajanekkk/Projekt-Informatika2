@@ -24,7 +24,9 @@ class Game:
         # do techto poli se budou nahravet vytvorene "entity"
         self.bullets = []
         self.enemies = []
-        self.enemy_spawn_timer = 0.0
+        self._spawn_start_enemies()
+
+        self.wave_timer = 0.0
 
         self.score = 0
         self.lives = PLAYER_LIVES
@@ -66,22 +68,29 @@ class Game:
                     self.bullets.append(new_bullet)
         
 
-    def _spawn_enemy(self, dt: float) -> None:
+    def _spawn_start_enemies(self) -> None:
         """
-        vytvori nepritele lehce nad obrazovkou, tenhle system je actually celkem bad,
-        zkousim pouze jestli enemy funguje spravne
+        spawne pocatecni nepratele
         """
-        self.enemy_spawn_timer += dt
+        for _ in range(START_ENEMY):
+            x = random.randint(ENEMY_WIDTH // 2, WINDOW_WIDTH - WINDOW_WIDTH // 2)
+            y = random.randint(-300, -ENEMY_HEIGHT)
+            self.enemies.append(Enemy(x, y))
 
-        """ if self.enemy_spawn_timer >= ENEMY_SPAWN_INTERVAL:
-            self.enemy_spawn_timer = 0.0 """
 
-        x = random.randint(ENEMY_WIDTH // 2, WINDOW_WIDTH - ENEMY_WIDTH // 2)    
-        y = -ENEMY_HEIGHT
+    def _handle_waves(self, dt: float) -> None:
+        """
+        pridava nepratele po vlnach
+        """
+        self.wave_timer += dt
 
-        new_enemy = Enemy(x, y)
-        self.enemies.append(new_enemy)
-       # TODO: aktualizuj na system po vlnach asi?
+        if self.wave_timer >= WAVE_INTERVAL:
+            self.wave_timer = 0.0
+        
+            for _ in range(WAVE_ENEMY):
+                x = random.randint(ENEMY_WIDTH // 2, WINDOW_WIDTH - ENEMY_WIDTH // 2)
+                y = -ENEMY_HEIGHT
+                self.enemies.append(Enemy(x, y))
 
     def _check_collisions(self) -> None:
         """
@@ -135,7 +144,8 @@ class Game:
             enemy.update(dt)
         
         # spawn novych enemies
-        self._spawn_enemy(dt)
+        self._handle_waves(dt)
+
 
         # kolize
         self._check_collisions()

@@ -24,6 +24,7 @@ class Player:
         Zpracovani pohybu
         """
         dx = 0.0 # jakoby osa x
+        dy = 0.0
 
         # posun doleva
         if pressed_keys[pygame.K_LEFT] or pressed_keys[pygame.K_a]:
@@ -33,14 +34,28 @@ class Player:
         if pressed_keys[pygame.K_RIGHT] or pressed_keys[pygame.K_d]:
             dx += self.speed * dt
         
+        # posune dolu
+        if pressed_keys[pygame.K_DOWN] or pressed_keys[pygame.K_s]:
+            dy += self.speed * dt
+        
+        # posun nahoru
+        if pressed_keys[pygame.K_UP] or pressed_keys[pygame.K_w]:
+            dy -= self.speed * dt
+        
         # posunuti hrace po ose x
         self.rect.x += int(dx)
+        self.rect.y += int(dy)
 
         # osetreni hrace mimo obrazovku
         if self.rect.left < 0:
             self.rect.left = 0
         if self.rect.right > WINDOW_WIDTH:
             self.rect.right = WINDOW_WIDTH
+        if self.rect.top < 0:
+            self.rect.top = 0
+        if self.rect.bottom > WINDOW_HEIGHT:
+            self.rect.bottom = WINDOW_HEIGHT
+
 
     def update(self, dt: float) -> None:
         # TODO

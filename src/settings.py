@@ -20,6 +20,7 @@ ENEMY_SPEED = 150           # pixely za sekundu
 ENEMY_WIDTH = 40
 ENEMY_HEIGHT = 25
 
-ENEMY_SPAWN_INTERVAL = 5000.0  # v sekundách
-
+START_ENEMY = 1
+WAVE_ENEMY = 3
+WAVE_INTERVAL = 5.0
 
