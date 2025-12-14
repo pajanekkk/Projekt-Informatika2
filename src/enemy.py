@@ -16,6 +16,9 @@ class Enemy:
         self.speed = ENEMY_SPEED
     
     def update(self, dt: float) -> None:
+        """
+        update funkce
+        """
         dy = self.speed * dt
         self.rect.y += int(dy)
     
@@ -26,4 +29,7 @@ class Enemy:
         return self.rect.top > WINDOW_HEIGHT
     
     def draw(self, surface: pygame.Surface) -> None:
+        """
+       vykresleni nepritele
+        """
         pygame.draw.rect(surface, ENEMY_COLOR, self.rect)

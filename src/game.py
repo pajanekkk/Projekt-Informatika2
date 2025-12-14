@@ -24,9 +24,10 @@ class Game:
         # do techto poli se budou nahravet vytvorene "entity"
         self.bullets = []
         self.enemies = []
-        self._spawn_start_enemies()
 
-        self.wave_timer = 0.0
+        self.curr_wave = 0
+        self.enemies_in_wave = 5 # zatim pevny pocet
+        self.wave_active = True
 
         self.score = 0
         self.lives = PLAYER_LIVES
@@ -37,6 +38,7 @@ class Game:
         self.paused = False
 
         self.running = True
+        self._start_wave
 
     def run(self) -> None:
         while self.running:
@@ -97,29 +99,30 @@ class Game:
 
         self.game_over = False
 
-    def _spawn_start_enemies(self) -> None:
+    def _start_wave(self) -> None:
         """
         spawne pocatecni nepratele
         """
-        for _ in range(START_ENEMY):
-            x = random.randint(ENEMY_WIDTH // 2, WINDOW_WIDTH - WINDOW_WIDTH // 2)
+        self.wave_active = True
+        for _ in range(self.enemies_in_wave):
+            x = random.randint(ENEMY_WIDTH // 2, WINDOW_WIDTH - ENEMY_WIDTH // 2)
             y = random.randint(-300, -ENEMY_HEIGHT)
             self.enemies.append(Enemy(x, y))
 
 
-    def _handle_waves(self, dt: float) -> None:
-        """
-        pridava nepratele po vlnach
-        """
-        self.wave_timer += dt
+    # def _handle_waves(self, dt: float) -> None:
+    #     """
+    #     pridava nepratele po vlnach
+    #     """
+    #     self.wave_timer += dt
 
-        if self.wave_timer >= WAVE_INTERVAL:
-            self.wave_timer = 0.0
+    #     if self.wave_timer >= WAVE_INTERVAL:
+    #         self.wave_timer = 0.0
         
-            for _ in range(WAVE_ENEMY):
-                x = random.randint(ENEMY_WIDTH // 2, WINDOW_WIDTH - ENEMY_WIDTH // 2)
-                y = -ENEMY_HEIGHT
-                self.enemies.append(Enemy(x, y))
+    #         for _ in range(WAVE_ENEMY):
+    #             x = random.randint(ENEMY_WIDTH // 2, WINDOW_WIDTH - ENEMY_WIDTH // 2)
+    #             y = -ENEMY_HEIGHT
+    #             self.enemies.append(Enemy(x, y))
 
     def _check_collisions(self) -> None:
         """
@@ -173,14 +176,18 @@ class Game:
             enemy.update(dt)
         
         # spawn novych enemies
-        self._handle_waves(dt)
-
+        # self._handle_waves(dt)
+        
 
         # kolize
         self._check_collisions()
 
         # mazani enemies, kteri jsou mimo hraci okno
         self.enemies = [e for e in self.enemies if not e.is_offscreen()]
+        if self.wave_active and len(self.enemies) == 0:
+            self.wave_active = False
+            self.curr_wave += 1
+            self._start_wave()
 
 
 
@@ -198,10 +205,15 @@ class Game:
             enemy.draw(self.screen)
         
         # text na skore a zivoty
-        font = pygame.font.SysFont(None, 24)
-        text_surface = font.render(f"Skóre: {self.score} Zivoty: {self.lives}", True, (255, 255, 255))
+        font_surf = pygame.font.SysFont(None, 24)
+        text_surface = font_surf.render(f"Skóre: {self.score} Zivoty: {self.lives}", True, (255, 255, 255))
         self.screen.blit(text_surface, (10, 10))
+        # text pro vlny
+        font_wave = pygame.font.SysFont(None, 24)
+        text_wave = font_wave.render(f"Vlna: {self.curr_wave}", True, (255, 255, 255))
+        self.screen.blit(text_wave, (10, 30))
         
+
         # vykresleni prohry
         if self.game_over:
             # go - game over, r - restart
