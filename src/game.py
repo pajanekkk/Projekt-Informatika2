@@ -33,6 +33,8 @@ class Game:
         # false - normalni hra
         # true - konec
         self.game_over = False
+        
+        self.paused = False
 
         self.running = True
 
@@ -42,7 +44,7 @@ class Game:
             
             self._handle_events(dt)
             
-            if not self.game_over:
+            if not self.game_over and not self.paused:
                 self._update(dt)
             
             self._draw()
@@ -67,17 +69,26 @@ class Game:
             # exit
             if event.type == pygame.QUIT:
                 self.running = False
-            
+
+            # pauza
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE and not self.game_over:
+                    self.paused = not self.paused
+        
             # strelba
             if event.type == pygame.KEYDOWN or event.type == pygame.KEYUP:
                 if pressed_keys[pygame.K_SPACE]:
                     new_bullet = self.player.shoot()
                     self.bullets.append(new_bullet)
+        # restart    
         if self.game_over:
             if pressed_keys[pygame.K_r]:
                 self._restart_game()
 
     def _restart_game(self):
+        """
+        funkce pro restart hry
+        """
         self.bullets.clear()
         self.enemies.clear()
 
@@ -191,18 +202,28 @@ class Game:
         text_surface = font.render(f"Skóre: {self.score} Zivoty: {self.lives}", True, (255, 255, 255))
         self.screen.blit(text_surface, (10, 10))
         
+        # vykresleni prohry
         if self.game_over:
             # go - game over, r - restart
             font_go = pygame.font.SysFont(None, 48)
             font_r = pygame.font.SysFont(None, 28)
-                
-            text1 = font_go.render("PROHRÁL SI!", True, (255, 0, 0))
-            text2 = font_r.render("ZMÁČKNI 'R' PRO RESTART HRY!", True, (255, 255, 255))
 
-            rect1 = text1.get_rect(center=(WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2 - 20))
-            rect2 = text2.get_rect(center=(WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2 + 20))
+            text_go = font_go.render("PROHRÁL SI!", True, (255, 0, 0))
+            text_r = font_r.render("ZMÁČKNI 'R' PRO RESTART HRY!", True, (255, 255, 255))
 
-            self.screen.blit(text1, rect1)
-            self.screen.blit(text2, rect2)
+            rect_go = text_go.get_rect(center=(WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2 - 20))
+            rect_r = text_r.get_rect(center=(WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2 + 20))
+
+            self.screen.blit(text_go, rect_go)
+            self.screen.blit(text_r, rect_r)
+        
+        # vykresleni pauzy
+        if self.paused:
+            font_p = pygame.font.SysFont(None, 48)
+
+            text_p = font_p.render("HRA POZASTAVENA!", True, (255, 255, 255))
+            rect_p = text_p.get_rect(center=(WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2))
+
+            self.screen.blit(text_p, rect_p)
 
         pygame.display.flip()
