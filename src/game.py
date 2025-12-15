@@ -42,6 +42,8 @@ class Game:
         
         self.paused = False
 
+        self.victory = False
+
         self.running = True
         self._start_wave
 
@@ -51,7 +53,7 @@ class Game:
             
             self._handle_events(dt)
             
-            if not self.game_over and not self.paused:
+            if not self.game_over and not self.paused and not self.victory:
                 self._update(dt)
             
             self._draw()
@@ -181,8 +183,14 @@ class Game:
         # mezipauza u vln
         if self.wave_pause:
             self.wave_p_timer += dt
+
             if self.wave_p_timer >= self.wave_p_dur:
                 self.wave_pause = False
+                
+                if self.curr_wave >= MAX_WAVES:
+                    self.victory = True
+                    return
+                                
                 self.curr_wave += 1
                 # zvyseni obtiznosti
                 self.enemies_in_wave += 1
