@@ -1,5 +1,5 @@
 """
-Slouzi k zakladnim funkcim, ktere umoznuji aby se hra spustila, bezela dobre, napr. vytvoreni okna atd...
+Slouzi k funkcim, ktere umoznuji aby se hra spustila, bezela dobre, napr. vytvoreni okna, vizualu atd...
 """
 import pygame
 import random
@@ -27,9 +27,10 @@ class Game:
 
         self.enemy_speed = ENEMY_SPEED
 
-        self.enemies_in_wave = random.randint(1, 5)
+        self.enemies_in_wave = 2
+        self.esc_enemies = 0
         self.wave_active = True
-        self.curr_wave = 29
+        self.curr_wave = 1
         self.wave_pause = False
         self.wave_p_timer = 0.0
         self.wave_p_dur = 3.0
@@ -90,7 +91,7 @@ class Game:
                     new_bullet = self.player.shoot()
                     self.bullets.append(new_bullet)
         # restart    
-        if self.game_over or self.victory:
+        if self.game_over or self.victory or self.paused:
             if pressed_keys[pygame.K_r]:
                 self._restart_game()
 
@@ -104,7 +105,7 @@ class Game:
         self.lives = PLAYER_LIVES
         self.score = 0
         self.curr_wave = 0
-        self.enemies_in_wave = random.randint(1, 5)
+        self.enemies_in_wave = 2
 
         self.game_over = False
         self.wave_pause = False
@@ -114,7 +115,7 @@ class Game:
 
     def _start_wave(self) -> None:
         """
-        spawne pocatecni nepratele
+        spawne novou vlnu
         """
         self.wave_active = True
         for _ in range(self.enemies_in_wave):
@@ -159,7 +160,9 @@ class Game:
             self.game_over = True
 
     def _update(self, dt: float) -> None:
-
+        """
+        update funkce(at se to muze hybat po obrazovce atd.)
+        """
         if not self.game_over and not self.paused and not self.victory:
             self.player.update(dt)
             # update strel
@@ -173,10 +176,16 @@ class Game:
         # kolize
         self._check_collisions()
         # smazat strely mimo okno
-        self.bullets = [b for b in self.bullets if not b.is_offscreen()]        
-        # mazani enemies, kteri jsou mimo hraci okno
-        self.enemies = [e for e in self.enemies if not e.is_offscreen()]
+        self.bullets = [b for b in self.bullets if not b.is_offscreen()]    
 
+        remaining_enemies = []
+        for enemy in self.enemies:
+            if enemy.is_offscreen():
+                self.esc_enemies += 1
+            else:
+                remaining_enemies.append(enemy)
+        self.enemies = remaining_enemies
+        
         # dalsi vlna
         if self.wave_active and len(self.enemies) == 0:
             self.wave_active = False
@@ -207,8 +216,9 @@ class Game:
         self.screen.fill((0, 0, 0))
         self.player.draw(self.screen)
 
-        for bullet in self.bullets:
-            bullet.draw(self.screen)
+        if not self.game_over and not self.paused and not self.victory:
+            for bullet in self.bullets:
+                bullet.draw(self.screen)
 
         for enemy in self.enemies:
             enemy.draw(self.screen)
@@ -221,6 +231,11 @@ class Game:
         font_wave = pygame.font.SysFont(None, 24)
         text_wave = font_wave.render(f"Vlna: {self.curr_wave}", True, (255, 255, 255))
         self.screen.blit(text_wave, (10, 30))
+        # text pro unikle enemies
+        font_esc = pygame.font.SysFont(None, 24)
+        text_esc = font_esc.render(f"Uniklých: {self.esc_enemies}", True, (255, 255, 255))
+        self.screen.blit(text_esc, (10, 50))
+
 
         # vykresleni mezipauzy u vln
         if self.wave_pause and not self.curr_wave == 0:

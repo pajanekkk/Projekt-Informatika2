@@ -20,5 +20,4 @@ ENEMY_SPEED = 120           # pixely za sekundu
 ENEMY_WIDTH = 40
 ENEMY_HEIGHT = 25
 
-WAVE_INTERVAL = 5.0
 MAX_WAVES = 30
