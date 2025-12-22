@@ -208,6 +208,26 @@ class Game:
                 self.enemies_in_wave += 1
 
                 self._start_wave()
+    def _draw_game_status(self, m_text, b_text, color):
+        """
+        funkce pro vykresleni stavu hry(vyhra, prohra, pauza)
+        
+        :param m_text: hlavni text
+        :param b_text: podtext
+        :param color: barva textu
+        """
+        font_m = pygame.font.SysFont(None, 48)
+        font_b = pygame.font.SysFont(None, 28)
+
+        text1 = font_m.render(m_text, True, color)
+        text2 = font_b.render(b_text, True, (255, 255, 255))
+
+        rect1 = text1.get_rect(center=(WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2 - 20))
+        rect2 = text2.get_rect(center=(WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2 + 20))
+
+        self.screen.blit(text1, rect1)
+        self.screen.blit(text2, rect2)
+
 
     def _draw(self) -> None:
         """
@@ -223,56 +243,29 @@ class Game:
         for enemy in self.enemies:
             enemy.draw(self.screen)
         
-        # text pro skore a zivoty
-        font_surf = pygame.font.SysFont(None, 24)
-        text_surface = font_surf.render(f"Skóre: {self.score} Životy: {self.lives}", True, (255, 255, 255))
-        self.screen.blit(text_surface, (10, 10))
-        # text pro vlny
-        font_wave = pygame.font.SysFont(None, 24)
-        text_wave = font_wave.render(f"Vlna: {self.curr_wave}", True, (255, 255, 255))
+        # text pro statistiky
+        font = pygame.font.SysFont(None, 24)
+
+        text_scoliv = font.render(f"Skóre: {self.score} Životy: {self.lives}", True, (255, 255, 255))
+        text_esc = font.render(f"Uniklých: {self.esc_enemies}", True, (255, 255, 255))
+        text_wave = font.render(f"Vlna: {self.curr_wave}", True, (255, 255, 255))
+
+        self.screen.blit(text_scoliv, (10, 10))
         self.screen.blit(text_wave, (10, 30))
-        # text pro unikle enemies
-        font_esc = pygame.font.SysFont(None, 24)
-        text_esc = font_esc.render(f"Uniklých: {self.esc_enemies}", True, (255, 255, 255))
         self.screen.blit(text_esc, (10, 50))
 
 
         # vykresleni mezipauzy u vln
         if self.wave_pause and not self.curr_wave == 0:
-            font_wp = pygame.font.SysFont(None, 36)
-            text_wp = font_wp.render(f"Vlna {self.curr_wave} poražena!", True, (255, 255, 255))
-            rect_wp = text_wp.get_rect(center=(WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2 - 20))
-            self.screen.blit(text_wp, rect_wp)
-        
+            self._draw_game_status(f"Vlna {self.curr_wave} dokončena", None, (0, 255, 255))
         # vykresleni vyhry
         if self.victory:
-            font_vic = pygame.font.SysFont(None, 48)
-            text_vic = font_vic.render(f"VYHRÁL SI!!! Dosažené skóre: {self.score}", True, (255, 0, 0))
-            rect_vic = text_vic.get_rect(center=(WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2))
-            self.screen.blit(text_vic, rect_vic)
-
+            self._draw_game_status("VYHRÁL SI!", "R pro restart", (255, 0, 0))
         # vykresleni prohry
         if self.game_over:
-            # go - game over, r - restart
-            font_go = pygame.font.SysFont(None, 48)
-            font_r = pygame.font.SysFont(None, 28)
-
-            text_go = font_go.render("PROHRÁL SI!", True, (255, 0, 0))
-            text_r = font_r.render("ZMÁČKNI 'R' PRO RESTART HRY!", True, (255, 255, 255))
-
-            rect_go = text_go.get_rect(center=(WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2 - 20))
-            rect_r = text_r.get_rect(center=(WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2 + 20))
-
-            self.screen.blit(text_go, rect_go)
-            self.screen.blit(text_r, rect_r)
-        
+            self._draw_game_status("PROHRÁL SI!", "R pro restart", (255, 0, 0))
         # vykresleni pauzy
         if self.paused:
-            font_p = pygame.font.SysFont(None, 48)
-
-            text_p = font_p.render("HRA POZASTAVENA!", True, (255, 255, 255))
-            rect_p = text_p.get_rect(center=(WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2))
-
-            self.screen.blit(text_p, rect_p)
+            self._draw_game_status("HRA POZASTAVENA!", "R pro restart", (255, 0, 0))
 
         pygame.display.flip()
