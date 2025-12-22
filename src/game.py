@@ -29,15 +29,16 @@ class Game:
 
         self.enemies_in_wave = random.randint(1, 5)
         self.wave_active = True
-        self.curr_wave = 0
+        self.curr_wave = 29
         self.wave_pause = False
         self.wave_p_timer = 0.0
         self.wave_p_dur = 3.0
 
         self.score = 0
         self.lives = PLAYER_LIVES
+
         # false - normalni hra
-        # true - konec
+        # true - konec, pauza, vitezstvi
         self.game_over = False
         
         self.paused = False
@@ -45,7 +46,7 @@ class Game:
         self.victory = False
 
         self.running = True
-        self._start_wave
+        self._start_wave()
 
     def run(self) -> None:
         while self.running:
@@ -80,17 +81,16 @@ class Game:
                 self.running = False
 
             # pauza
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_ESCAPE and not self.game_over:
+            if pressed_keys[pygame.K_ESCAPE]:
+                if not self.game_over:
                     self.paused = not self.paused
         
-            # strelba
-            if event.type == pygame.KEYDOWN or event.type == pygame.KEYUP:
-                if pressed_keys[pygame.K_SPACE]:
+            if pressed_keys[pygame.K_SPACE]: 
+                if not self.game_over and not self.paused and not self.victory:
                     new_bullet = self.player.shoot()
                     self.bullets.append(new_bullet)
         # restart    
-        if self.game_over:
+        if self.game_over or self.victory:
             if pressed_keys[pygame.K_r]:
                 self._restart_game()
 
@@ -104,8 +104,13 @@ class Game:
         self.lives = PLAYER_LIVES
         self.score = 0
         self.curr_wave = 0
+        self.enemies_in_wave = random.randint(1, 5)
 
         self.game_over = False
+        self.wave_pause = False
+        self.wave_p_timer = 0.0
+        self.victory = False
+
 
     def _start_wave(self) -> None:
         """
@@ -155,22 +160,20 @@ class Game:
 
     def _update(self, dt: float) -> None:
 
-        self.player.update(dt)
+        if not self.game_over and not self.paused and not self.victory:
+            self.player.update(dt)
+            # update strel
+            for bullet in self.bullets:
+                bullet.update(dt)
 
-        # update strel
-        for bullet in self.bullets:
-            bullet.update(dt)
+            # update enemies
+            for enemy in self.enemies:
+                enemy.update(dt)
 
-        # smazat strely mimo okno
-        self.bullets = [b for b in self.bullets if not b.is_offscreen()]
-
-        # update enemies
-        for enemy in self.enemies:
-            enemy.update(dt)
-        
         # kolize
         self._check_collisions()
-
+        # smazat strely mimo okno
+        self.bullets = [b for b in self.bullets if not b.is_offscreen()]        
         # mazani enemies, kteri jsou mimo hraci okno
         self.enemies = [e for e in self.enemies if not e.is_offscreen()]
 
@@ -225,6 +228,13 @@ class Game:
             text_wp = font_wp.render(f"Vlna {self.curr_wave} poražena!", True, (255, 255, 255))
             rect_wp = text_wp.get_rect(center=(WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2 - 20))
             self.screen.blit(text_wp, rect_wp)
+        
+        # vykresleni vyhry
+        if self.victory:
+            font_vic = pygame.font.SysFont(None, 48)
+            text_vic = font_vic.render(f"VYHRÁL SI!!! Dosažené skóre: {self.score}", True, (255, 0, 0))
+            rect_vic = text_vic.get_rect(center=(WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2))
+            self.screen.blit(text_vic, rect_vic)
 
         # vykresleni prohry
         if self.game_over:
