@@ -1,7 +1,10 @@
+"""
+Slouzi pro funkcnost bosse
+"""
 import pygame
 from src.settings import *
 
-BOSS_COLOR = (120, 0, 200)  # fialova (drahota)
+
 
 class Boss:
     def __init__(self) -> None:

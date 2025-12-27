@@ -8,6 +8,7 @@ from src.settings import *
 from src.bullet import *
 from src.enemy import *
 from src.boss import *
+from src.boss_bullet import *
 
 class Game:
     def __init__(self) -> None:
@@ -26,6 +27,7 @@ class Game:
         # do techto poli se budou nahravet vytvorene "entity"
         self.bullets = []
         self.enemies = []
+        self.boss_bullets = []
 
         self.enemy_speed = ENEMY_SPEED
 
@@ -170,6 +172,12 @@ class Game:
                 if self.boss and self.boss.hp <= 0:
                     self.boss = None
                     self.victory = True
+            for b in self.boss_bullets[:]:
+                if b.rect.colliderect(self.player.rect):
+                    self.boss_bullets.remove(b)
+                    self.lives -= 1
+                    if self.lives <= 0:
+                        self.game_over = True
 
 
     def _update(self, dt: float) -> None:
@@ -226,6 +234,15 @@ class Game:
                 self._start_wave()
         if self.boss:
             self.boss.update(dt)
+        
+        if self.boss and self.boss.can_boss_shoot():
+            bx = self.boss.rect.centerx
+            by = self.boss.rect.bottom
+            self.boss_bullets.append(BossBullet(bx, by))
+        
+        for b in self.boss_bullets:
+            b.update(dt)
+        self.boss_bullets = [b for b in self.boss_bullets if not b.is_offscreen()]
 
     def _draw_game_status(self, m_text, b_text, color) -> None:
         """
@@ -264,6 +281,11 @@ class Game:
         
         if self.boss:
             self.boss.draw(self.screen)
+        
+        if self.boss and not self.game_over and not self.paused and not self.victory:
+            for b in self.boss_bullets:
+                b.draw(self.screen)
+
         
         # text pro statistiky
         font = pygame.font.SysFont(None, 24)

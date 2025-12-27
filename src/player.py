@@ -5,7 +5,6 @@ import pygame
 from src.settings import *
 from src.bullet import Bullet
 
-PLAYER_COLOR = (0, 255, 0)
 
 class Player:
     def __init__(self, start_x: float, start_y: float) -> None:

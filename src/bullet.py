@@ -6,7 +6,7 @@ from src.player import *
 from src.settings import *
 from src.game import *
 
-BULLET_COLOR = (255, 255, 255)
+
 
 class Bullet:
     def __init__(self, start_x: float, start_y: float) -> None:

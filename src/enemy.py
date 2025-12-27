@@ -5,7 +5,7 @@ Slouzi k implementaci tridy pro nepritele
 import pygame
 from src.settings import *
 
-ENEMY_COLOR = (255, 0, 0)
+
 
 class Enemy:
     def __init__(self, start_x: float, start_y: float) -> None:
