@@ -42,7 +42,7 @@ class Player:
         if pressed_keys[pygame.K_UP] or pressed_keys[pygame.K_w]:
             dy -= self.speed * dt
         
-        # posunuti hrace po ose x
+        # posunuti hrace po ose x a y
         self.rect.x += int(dx)
         self.rect.y += int(dy)
 
@@ -58,7 +58,7 @@ class Player:
 
 
     def update(self, dt: float) -> None:
-        # TODO
+        # TODO ?? to asi nepotrebuju ze??? uvaha pls
         pass
 
     def draw(self, surface: pygame.Surface) -> None:

@@ -28,7 +28,6 @@ class Game:
         self.enemy_speed = ENEMY_SPEED
 
         self.enemies_in_wave = 2
-        self.esc_enemies = 0
         self.wave_active = True
         self.curr_wave = 1
         self.wave_pause = False
@@ -80,7 +79,7 @@ class Game:
             # exit
             if event.type == pygame.QUIT:
                 self.running = False
-
+            
             # pauza
             if pressed_keys[pygame.K_ESCAPE]:
                 if not self.game_over:
@@ -139,7 +138,7 @@ class Game:
                 if bullet.rect.colliderect(enemy.rect):
                     bullets_to_remove.append(bullet)
                     enemies_to_remove.append(enemy)
-                    self.score += 1
+                    self.score += 100
         
         # odstrani trefene objekty
         self.bullets = [b for b in self.bullets if b not in bullets_to_remove]
@@ -181,7 +180,7 @@ class Game:
         remaining_enemies = []
         for enemy in self.enemies:
             if enemy.is_offscreen():
-                self.esc_enemies += 1
+                self.score -= 50
             else:
                 remaining_enemies.append(enemy)
         self.enemies = remaining_enemies
@@ -247,12 +246,10 @@ class Game:
         font = pygame.font.SysFont(None, 24)
 
         text_scoliv = font.render(f"Skóre: {self.score} Životy: {self.lives}", True, (255, 255, 255))
-        text_esc = font.render(f"Uniklých: {self.esc_enemies}", True, (255, 255, 255))
         text_wave = font.render(f"Vlna: {self.curr_wave}", True, (255, 255, 255))
 
         self.screen.blit(text_scoliv, (10, 10))
         self.screen.blit(text_wave, (10, 30))
-        self.screen.blit(text_esc, (10, 50))
 
 
         # vykresleni mezipauzy u vln
