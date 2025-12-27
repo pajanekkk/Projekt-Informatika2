@@ -7,6 +7,7 @@ from src.player import *
 from src.settings import *
 from src.bullet import *
 from src.enemy import *
+from src.boss import *
 
 class Game:
     def __init__(self) -> None:
@@ -20,6 +21,7 @@ class Game:
         start_x = WINDOW_WIDTH // 2
         start_y = WINDOW_HEIGHT - 60
         self.player = Player(start_x, start_y)
+        self.boss = None
 
         # do techto poli se budou nahravet vytvorene "entity"
         self.bullets = []
@@ -29,7 +31,7 @@ class Game:
 
         self.enemies_in_wave = 2
         self.wave_active = True
-        self.curr_wave = 1
+        self.curr_wave = 29
         self.wave_pause = False
         self.wave_p_timer = 0.0
         self.wave_p_dur = 3.0
@@ -94,7 +96,7 @@ class Game:
             if pressed_keys[pygame.K_r]:
                 self._restart_game()
 
-    def _restart_game(self):
+    def _restart_game(self) -> None:
         """
         funkce pro restart hry
         """
@@ -110,6 +112,7 @@ class Game:
         self.wave_pause = False
         self.wave_p_timer = 0.0
         self.victory = False
+        self._start_wave()
 
 
     def _start_wave(self) -> None:
@@ -157,6 +160,17 @@ class Game:
         # game over
         if self.lives <= 0:
             self.game_over = True
+        # strela hrace vs boss
+        if self.boss:
+            for bullet in self.bullets[:]:
+                if self.boss and bullet.rect.colliderect(self.boss.rect):
+                    self.bullets.remove(bullet)
+                    self.boss.take_dmg(1)
+
+                if self.boss and self.boss.hp <= 0:
+                    self.boss = None
+                    self.victory = True
+
 
     def _update(self, dt: float) -> None:
         """
@@ -198,16 +212,22 @@ class Game:
             if self.wave_p_timer >= self.wave_p_dur:
                 self.wave_pause = False
                 
-                if self.curr_wave >= MAX_WAVES:
-                    self.victory = True
+                if self.curr_wave == MAX_WAVES:
+                    self.boss = Boss()
+                    self.wave_active = False
+                    self.wave_pause = False
                     return
+
                                 
                 self.curr_wave += 1
                 # zvyseni obtiznosti
                 self.enemies_in_wave += 1
 
                 self._start_wave()
-    def _draw_game_status(self, m_text, b_text, color):
+        if self.boss:
+            self.boss.update(dt)
+
+    def _draw_game_status(self, m_text, b_text, color) -> None:
         """
         funkce pro vykresleni stavu hry(vyhra, prohra, pauza)
         
@@ -241,6 +261,9 @@ class Game:
 
         for enemy in self.enemies:
             enemy.draw(self.screen)
+        
+        if self.boss:
+            self.boss.draw(self.screen)
         
         # text pro statistiky
         font = pygame.font.SysFont(None, 24)
