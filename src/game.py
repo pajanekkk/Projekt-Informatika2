@@ -52,6 +52,9 @@ class Game:
 
         self.victory = False
 
+        self.state = "MENU"
+        self.player_name = ""
+
         self.running = True
         self._start_wave()
 
@@ -60,9 +63,9 @@ class Game:
             dt = self._get_delta_time()
             
             self._handle_events(dt)
-            
-            if not self.game_over and not self.paused and not self.victory:
-                self._update(dt)
+            if self.state == "PLAYING":
+                if not self.game_over and not self.paused and not self.victory:
+                    self._update(dt)
             
             self._draw()
 
@@ -87,6 +90,11 @@ class Game:
             if event.type == pygame.QUIT:
                 self.running = False
             
+           # prechod z menu
+            if self.state == "MENU":
+                if pressed_keys[pygame.K_RETURN]:
+                    self._start_game()
+
             # pauza
             if pressed_keys[pygame.K_ESCAPE]:
                 if not self.game_over:
@@ -131,6 +139,12 @@ class Game:
             y = random.randint(-300, -ENEMY_HEIGHT)
             self.enemies.append(Enemy(x, y))
 
+    def _start_game(self) -> None:
+        """
+        spusti hru tzv. prechod z menu do akce
+        """
+        self.state = "PLAYING"
+        self._restart_game()
 
     def _check_collisions(self) -> None:
         """
@@ -283,6 +297,12 @@ class Game:
         vykreslovani na obrazovku
         """
         self.screen.fill((0, 0, 0))
+        if self.state == "MENU":
+            self._draw_game_status("NAZEV HRY", "Zmackni ENTER pro zahájení hry!", (255, 255, 255))
+
+            pygame.display.flip()
+            return
+
         self.player.draw(self.screen)
 
         if not self.game_over and not self.paused and not self.victory:
