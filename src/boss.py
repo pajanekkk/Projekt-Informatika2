@@ -2,7 +2,9 @@
 Slouzi pro funkcnost bosse
 """
 import pygame
+import random
 from src.settings import *
+
 
 
 
@@ -17,7 +19,7 @@ class Boss:
         self.hp = BOSS_HP
 
         self.shoot_timer = 0.0
-        self.shoot_cooldown = 1.0 # sekundy
+        self.shoot_cooldown = 1.5 # sekundy
 
     def update(self, dt: float):
         """

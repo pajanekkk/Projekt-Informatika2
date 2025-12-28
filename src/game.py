@@ -38,6 +38,9 @@ class Game:
         self.wave_p_timer = 0.0
         self.wave_p_dur = 3.0
 
+        self.flash_timer = 0.0
+        self.flash_t_dur = 0.15 # sekundy
+
         self.score = 0
         self.lives = PLAYER_LIVES
 
@@ -114,6 +117,7 @@ class Game:
         self.wave_pause = False
         self.wave_p_timer = 0.0
         self.victory = False
+        self.curr_wave = self.curr_wave + 1
         self._start_wave()
 
 
@@ -155,6 +159,8 @@ class Game:
             if enemy.rect.colliderect(self.player.rect):
                 enemies_hit_player.append(enemy)
                 self.lives -= 1
+                self.flash_timer = self.flash_t_dur
+
 
         # smaze enemaky, co narazi do playera
         self.enemies = [e for e in self.enemies if e not in enemies_hit_player]
@@ -176,8 +182,10 @@ class Game:
                 if b.rect.colliderect(self.player.rect):
                     self.boss_bullets.remove(b)
                     self.lives -= 1
+                    self.flash_timer = self.flash_t_dur
                     if self.lives <= 0:
                         self.game_over = True
+                        self.boss = None
 
 
     def _update(self, dt: float) -> None:
@@ -238,11 +246,16 @@ class Game:
         if self.boss and self.boss.can_boss_shoot():
             bx = self.boss.rect.centerx
             by = self.boss.rect.bottom
-            self.boss_bullets.append(BossBullet(bx, by))
+            self.boss_bullets.append(BossBullet(bx, by, 0))
+            self.boss_bullets.append(BossBullet(bx, by, -150))
+            self.boss_bullets.append(BossBullet(bx, by, 150))
         
         for b in self.boss_bullets:
             b.update(dt)
         self.boss_bullets = [b for b in self.boss_bullets if not b.is_offscreen()]
+
+        if self.flash_timer > 0:
+            self.flash_timer -= dt
 
     def _draw_game_status(self, m_text, b_text, color) -> None:
         """
@@ -309,5 +322,12 @@ class Game:
         # vykresleni pauzy
         if self.paused:
             self._draw_game_status("HRA POZASTAVENA!", "R pro restart", (255, 0, 0))
+
+        # tohle je jakoby probliknuti
+        if self.flash_timer > 0:
+            flash_surf = pygame.Surface((WINDOW_WIDTH, WINDOW_HEIGHT))
+            flash_surf.set_alpha(180) # semi-transparentni
+            flash_surf.fill((255, 255, 255)) # bila
+            self.screen.blit(flash_surf, (0, 0))
 
         pygame.display.flip()
