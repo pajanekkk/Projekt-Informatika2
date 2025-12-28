@@ -3,6 +3,7 @@ Slouzi k funkcim, ktere umoznuji aby se hra spustila, bezela dobre, napr. vytvor
 """
 import pygame
 import random
+
 from src.player import *
 from src.settings import *
 from src.bullet import *
@@ -82,32 +83,45 @@ class Game:
         """
         funkce pro zpracovani eventu, jako je quit, nebo zmacknuti klaves pro strileni atd.
         """
+
+        # TOHLE POUZE PRO HRACE!!!!!!!!!!!!!!!!
         pressed_keys = pygame.key.get_pressed()
         self.player.handle_input(pressed_keys, dt)
-        
+        #######################################
         for event in pygame.event.get():
             # exit
             if event.type == pygame.QUIT:
                 self.running = False
-            
-           # prechod z menu
-            if self.state == "MENU":
-                if pressed_keys[pygame.K_RETURN]:
-                    self._start_game()
 
-            # pauza
-            if pressed_keys[pygame.K_ESCAPE]:
-                if not self.game_over:
-                    self.paused = not self.paused
-        
-            if pressed_keys[pygame.K_SPACE]: 
-                if not self.game_over and not self.paused and not self.victory:
-                    new_bullet = self.player.shoot()
-                    self.bullets.append(new_bullet)
-        # restart    
-        if self.game_over or self.victory or self.paused:
-            if pressed_keys[pygame.K_r]:
-                self._restart_game()
+            if event.type == pygame.KEYDOWN:
+            # prechod z menu
+                if self.state == "MENU":
+                    if event.key == pygame.K_RETURN:
+                        self.state = "NAME_INPUT"
+                        self.player_name = ""
+                
+                if self.state == "NAME_INPUT":
+                    if event.key == pygame.K_BACKSPACE:
+                        self.player_name = self.player_name[:-1]
+                    elif event.key == pygame.K_RETURN:
+                        if len(self.player_name) > 0:
+                            self._start_game()
+                    else:
+                        if len(self.player_name) < 8 and event.unicode.isalnum():
+                            self.player_name += event.unicode.upper()
+                # pauza
+                if event.key == pygame.K_ESCAPE:
+                    if not self.game_over:
+                        self.paused = not self.paused
+            
+                if event.key == pygame.K_SPACE: 
+                    if not self.game_over and not self.paused and not self.victory:
+                        new_bullet = self.player.shoot()
+                        self.bullets.append(new_bullet)
+            # restart    
+            if self.game_over or self.victory or self.paused:
+                if event.key == pygame.K_r:
+                    self._restart_game()
 
     def _restart_game(self) -> None:
         """
@@ -300,6 +314,11 @@ class Game:
         if self.state == "MENU":
             self._draw_game_status("NAZEV HRY", "Zmackni ENTER pro zahájení hry!", (255, 255, 255))
 
+            pygame.display.flip()
+            return
+
+        if self.state == "NAME_INPUT":
+            self._draw_game_status("ZADEJ JMENO! ENTER PRO POTVRZENI...", self.player_name + "_", (155, 155, 0))
             pygame.display.flip()
             return
 
