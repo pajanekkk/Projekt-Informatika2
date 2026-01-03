@@ -16,7 +16,7 @@ class Game:
         pygame.init()
 
         self.screen = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
-        pygame.display.set_caption("Space defender")
+        pygame.display.set_caption("DRONY ÚTOČÍ!")
 
         self.clock = pygame.time.Clock()
 
@@ -348,7 +348,7 @@ class Game:
         """
         self.screen.fill((0, 0, 0))
         if self.state == "MENU":
-            self._draw_game_status("NAZEV HRY", "Zmackni ENTER pro zahájení hry!", (255, 255, 255))
+            self._draw_game_status("DRONY ÚTOČÍ!", "Zmackni ENTER pro zahájení hry!", (255, 255, 255))
 
             pygame.display.flip()
             return
