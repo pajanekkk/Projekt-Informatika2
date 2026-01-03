@@ -118,6 +118,10 @@ class Game:
                     if not self.game_over and not self.paused and not self.victory:
                         new_bullet = self.player.shoot()
                         self.bullets.append(new_bullet)
+                
+                if event.key == pygame.K_RETURN:
+                    if self.state == "GAME_OVER" or self.state == "VICTORY":
+                        self.state = "MENU"
             # restart    
             if self.game_over or self.victory or self.paused:
                 if event.key == pygame.K_r:
@@ -132,7 +136,7 @@ class Game:
 
         self.lives = PLAYER_LIVES
         self.score = 0
-        self.curr_wave = 0
+        self.curr_wave = 29
         self.enemies_in_wave = 2
 
         self.game_over = False
@@ -195,7 +199,7 @@ class Game:
 
         # game over
         if self.lives <= 0:
-            self.game_over = True
+            self.state = "GAME_OVER"
         # strela hrace vs boss
         if self.boss:
             for bullet in self.bullets[:]:
@@ -205,14 +209,14 @@ class Game:
 
                 if self.boss and self.boss.hp <= 0:
                     self.boss = None
-                    self.victory = True
+                    self.state = "VICTORY"
             for b in self.boss_bullets[:]:
                 if b.rect.colliderect(self.player.rect):
                     self.boss_bullets.remove(b)
                     self.lives -= 1
                     self.flash_timer = self.flash_t_dur
                     if self.lives <= 0:
-                        self.game_over = True
+                        self.state = "GAME_OVER"
                         self.boss = None
 
 
@@ -305,6 +309,38 @@ class Game:
         self.screen.blit(text1, rect1)
         self.screen.blit(text2, rect2)
 
+    def _draw_endscreen(self, state):
+        """
+        funkce pro vykreslení konecne obrazovyk - game over/vyhra
+        :param state: stav hry
+        """
+        self.screen.fill((255, 255, 255))
+
+        # b - big text, m - maly text, s - stredni text
+        font_b = pygame.font.SysFont(None, 48)
+        font_s = pygame.font.SysFont(None, 36)
+        font_m = pygame.font.SysFont(None, 28)
+
+        title_text = "PROHRÁL SI" if self.state == "GAME_OVER" else "VYHRÁL SI!"
+        if self.state == "GAME_OVER":
+            subtext = "Bohužel si zemřel ve svém letounu při obraně tvého města..."
+        else:
+            subtext = ("Povedlo se ti odrazit nepřátelský útok a tím předejít katastrofě...")
+        
+        title = font_b.render(title_text, True, (0, 0, 0))
+        sub = font_s.render(subtext, True, (0, 0, 0))
+        name = font_m.render(f"Jméno: {self.player_name}", True, (0, 0, 0))
+        score = font_m.render(f"Skóre: {self.score}", True, (0, 0, 0))
+        ufncn = font_m.render("ENTER pro návrat do menu", True, (80, 80, 80))  # ufncn - uz fakt nevim co napsat -> symbolizuje me utrpeni pri psani teto hry
+
+        self.screen.blit(title, title.get_rect(center=(WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2 - 40)))
+        self.screen.blit(sub, sub.get_rect(center=(WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2)))
+        self.screen.blit(name, name.get_rect(center=(WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2 + 30)))
+        self.screen.blit(score, score.get_rect(center=(WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2 + 70)))
+        self.screen.blit(ufncn, ufncn.get_rect(center=(WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2 + 110)))
+
+        pygame.display.flip()
+
 
     def _draw(self) -> None:
         """
@@ -351,19 +387,16 @@ class Game:
 
         # vykresleni mezipauzy u vln
         if self.wave_pause and not self.curr_wave == 0:
-            self._draw_game_status(f"Vlna {self.curr_wave} dokončena", None, (0, 255, 255))
-        # vykresleni vyhry
-        if self.victory:
-            self._draw_game_status("VYHRÁL SI!", "R pro restart", (255, 0, 0))
-        # vykresleni prohry
-        if self.game_over:
-            self._draw_game_status("PROHRÁL SI!", "R pro restart", (255, 0, 0))
+            self._draw_game_status(f"Vlna {self.curr_wave} dokončena", None, (0, 0, 255))
         # vykresleni pauzy
         if self.paused:
-            self._draw_game_status("HRA POZASTAVENA!", "R pro restart", (255, 0, 0))
+            self._draw_game_status("HRA POZASTAVENA!", "R pro restart / Q pro ukončení", (255, 0, 0))
+
+        if self.state == "VICTORY" or self.state == "GAME_OVER":
+            self._draw_endscreen(self.state)
 
         # tohle je jakoby probliknuti
-        if self.flash_timer > 0:
+        if self.flash_timer > 0 and self.state == "PLAYING":
             flash_surf = pygame.Surface((WINDOW_WIDTH, WINDOW_HEIGHT))
             flash_surf.set_alpha(180) # semi-transparentni
             flash_surf.fill((255, 255, 255)) # bila
