@@ -3,6 +3,8 @@ Slouzi k funkcim, ktere umoznuji aby se hra spustila, bezela dobre, napr. vytvor
 """
 import pygame
 import random
+import json
+import os
 
 from src.player import *
 from src.settings import *
@@ -24,6 +26,7 @@ class Game:
         start_y = WINDOW_HEIGHT - 60
         self.player = Player(start_x, start_y)
         self.boss = None
+        self.highscores = self._load_highscores()
 
         # do techto poli se budou nahravet vytvorene "entity"
         self.bullets = []
@@ -34,7 +37,7 @@ class Game:
 
         self.enemies_in_wave = 2
         self.wave_active = True
-        self.curr_wave = 29
+        self.curr_wave = 0
         self.wave_pause = False
         self.wave_p_timer = 0.0
         self.wave_p_dur = 3.0
@@ -120,8 +123,12 @@ class Game:
                         self.bullets.append(new_bullet)
                 
                 if event.key == pygame.K_RETURN:
-                    if self.state == "GAME_OVER" or self.state == "VICTORY":
+                    if self.state == "GAME_OVER" or self.state == "VICTORY" or self.state == "HIGHSCORE":
                         self.state = "MENU"
+                if event.key == pygame.K_h:
+                    if self.state == "VICTORY" or self.state == "MENU":
+                        self.state = "HIGHSCORE"
+            
             # restart    
             if self.game_over or self.victory or self.paused:
                 if event.key == pygame.K_r:
@@ -136,7 +143,7 @@ class Game:
 
         self.lives = PLAYER_LIVES
         self.score = 0
-        self.curr_wave = 29
+        self.curr_wave = 14
         self.enemies_in_wave = 2
 
         self.game_over = False
@@ -210,6 +217,7 @@ class Game:
                 if self.boss and self.boss.hp <= 0:
                     self.boss = None
                     self.state = "VICTORY"
+                    self._save_highscore()
             for b in self.boss_bullets[:]:
                 if b.rect.colliderect(self.player.rect):
                     self.boss_bullets.remove(b)
@@ -321,8 +329,8 @@ class Game:
         font_s = pygame.font.SysFont(None, 36)
         font_m = pygame.font.SysFont(None, 28)
 
-        title_text = "PROHRÁL SI" if self.state == "GAME_OVER" else "VYHRÁL SI!"
-        if self.state == "GAME_OVER":
+        title_text = "PROHRÁL SI" if state == "GAME_OVER" else "VYHRÁL SI!"
+        if state == "GAME_OVER":
             subtext = "Bohužel si zemřel ve svém letounu při obraně tvého města..."
         else:
             subtext = ("Povedlo se ti odrazit nepřátelský útok a tím předejít katastrofě...")
@@ -332,15 +340,44 @@ class Game:
         name = font_m.render(f"Jméno: {self.player_name}", True, (0, 0, 0))
         score = font_m.render(f"Skóre: {self.score}", True, (0, 0, 0))
         ufncn = font_m.render("ENTER pro návrat do menu", True, (80, 80, 80))  # ufncn - uz fakt nevim co napsat -> symbolizuje me utrpeni pri psani teto hry
+        csjpnhs = font_m.render("H pro žebříček skóre", True, (80, 80, 0)) # chces se jit podivat na highscore?
 
-        self.screen.blit(title, title.get_rect(center=(WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2 - 40)))
-        self.screen.blit(sub, sub.get_rect(center=(WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2)))
-        self.screen.blit(name, name.get_rect(center=(WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2 + 30)))
-        self.screen.blit(score, score.get_rect(center=(WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2 + 70)))
-        self.screen.blit(ufncn, ufncn.get_rect(center=(WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2 + 110)))
+        self.screen.blit(title, title.get_rect(center=(WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2 - 100)))
+        self.screen.blit(sub, sub.get_rect(center=(WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2 - 40)))
+        self.screen.blit(name, name.get_rect(center=(WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2)))
+        self.screen.blit(score, score.get_rect(center=(WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2 + 40)))
+        self.screen.blit(ufncn, ufncn.get_rect(center=(WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2 + 80)))
+        self.screen.blit(csjpnhs, csjpnhs.get_rect(center=(WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2 + 120)))
+
+        ########## VYKRESLENI ZEBRICKU, hs jako highscore, y je spacing mezi radky
+
 
         pygame.display.flip()
 
+
+    def _draw_hs(self) -> None:
+        """
+        funkce pro vykresleni highscore zebricku
+        """
+        
+        self.screen.fill((255, 255, 255))
+
+        y = WINDOW_HEIGHT // 2 - 100 # padding
+
+        font_hs = pygame.font.SysFont(None, 48) # hs jako high score, lol
+        
+        title_hs = font_hs.render("NEJVYŠŠÍ SKÓRE", True, (0, 0, 0))
+        title_rect = title_hs.get_rect(center=(WINDOW_WIDTH // 2, y))
+        self.screen.blit(title_hs, title_rect)
+        y += 60
+
+        for i, entry in enumerate(self.highscores):
+            text = font_hs.render(f"{i+1}. {entry['name']} - {entry['score']}", True, (0, 0, 0))
+            text_rect = text.get_rect(center=(WINDOW_WIDTH // 2, y))
+            self.screen.blit(text, text_rect)
+            y += 50
+
+        pygame.display.flip()
 
     def _draw(self) -> None:
         """
@@ -348,7 +385,7 @@ class Game:
         """
         self.screen.fill((0, 0, 0))
         if self.state == "MENU":
-            self._draw_game_status("DRONY ÚTOČÍ!", "Zmackni ENTER pro zahájení hry!", (255, 255, 255))
+            self._draw_game_status("DRONY ÚTOČÍ!", "Zmackni ENTER pro zahájení hry / H pro zebricek", (255, 255, 255))
 
             pygame.display.flip()
             return
@@ -394,6 +431,9 @@ class Game:
 
         if self.state == "VICTORY" or self.state == "GAME_OVER":
             self._draw_endscreen(self.state)
+        
+        if self.state == "HIGHSCORE":
+            self._draw_hs()
 
         # tohle je jakoby probliknuti
         if self.flash_timer > 0 and self.state == "PLAYING":
@@ -403,3 +443,30 @@ class Game:
             self.screen.blit(flash_surf, (0, 0))
 
         pygame.display.flip()
+
+    def _load_highscores(self):
+        """
+        funkce pro nacteni zebricku
+        """
+        if not os.path.exists("highscores.json"):
+            return []
+    
+        with open("highscores.json", 'r') as f:
+            return json.load(f)
+    
+    def _save_highscore(self):
+        """
+        funkce pro ukladani zebricku
+        """
+        entry = {
+            "name" : self.player_name,
+            "score" : self.score
+        }
+        self.highscores.append(entry)
+
+        self.highscores.sort(key=lambda x: x["score"], reverse=True)
+
+        self.highscores = self.highscores[:5]
+
+        with open("highscores.json", 'w') as f:
+            json.dump(self.highscores, f, indent=2)
