@@ -349,9 +349,6 @@ class Game:
         self.screen.blit(ufncn, ufncn.get_rect(center=(WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2 + 80)))
         self.screen.blit(csjpnhs, csjpnhs.get_rect(center=(WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2 + 120)))
 
-        ########## VYKRESLENI ZEBRICKU, hs jako highscore, y je spacing mezi radky
-
-
         pygame.display.flip()
 
 

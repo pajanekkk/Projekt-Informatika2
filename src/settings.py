@@ -32,4 +32,4 @@ BOSS_COLOR = (120, 0, 200)  # fialova (drahota)
 BOSS_BULL_COL = (255, 80, 80) # svetlejsi cervena
 
 
-MAX_WAVES = 30
+MAX_WAVES = 15
