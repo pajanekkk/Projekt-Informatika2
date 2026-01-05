@@ -11,7 +11,12 @@ from src.settings import *
 class Boss:
     def __init__(self) -> None:
 
-        self.rect = pygame.Rect((WINDOW_WIDTH - BOSS_WIDTH) // 2, 40, BOSS_WIDTH, BOSS_HEIGHT)
+        self.image = pygame.image.load("assets/boss.png").convert_alpha()
+        self.image = pygame.transform.scale(self.image, (140, 80))
+        self.image = pygame.transform.flip(self.image, False, True)
+
+
+        self.rect = self.image.get_rect(center=(WINDOW_WIDTH // 2, 100))
 
         self.speed = BOSS_SPEED
         self.dir = 1 # 1 = doprava, -1 = doleva
@@ -21,17 +26,31 @@ class Boss:
         self.shoot_timer = 0.0
         self.shoot_cooldown = 1.5 # sekundy
 
+        self.target_x = self.rect.x
+        self.target_y = self.rect.y
+        self._pick_new_target()
+
     def update(self, dt: float):
         """
-        pohyb bosse ze strany na stranu (zatim?)
+        pohyb bosse, pokus o jednoduchou AI
         """
-        self.rect.x += int(self.speed * self.dir * dt)
+        dx = self.target_x - self.rect.x
+        dy = self.target_y - self.rect.y
 
-        if self.rect.left <= 0 or self.rect.right >= WINDOW_WIDTH:
-            self.dir *= -1
+        dist = (dx ** 2 + dy ** 2) ** 0.5
+
+        if dist < 5:
+            self._pick_new_target()
+            return
+        
+        dx /= dist
+        dy /= dist
+
+        self.rect.x += int(dx * self.speed * dt)
+        self.rect.y += int(dy * self.speed * dt)
 
         self.shoot_timer += dt
-    
+
     def can_boss_shoot(self):
         """
         muze boss strilet? ano, pokud timer presahne/rovna se cooldownu
@@ -41,6 +60,14 @@ class Boss:
             return True
         return False
     
+    def _pick_new_target(self):
+        """
+        vymezuje cast okna kde muze litat (v podstate "cilove body" slouzici pro bosse kam letet)
+        """
+        import random
+        self.target_x = random.randint(0, WINDOW_WIDTH - self.rect.width)
+        self.target_y = random.randint(0, WINDOW_HEIGHT // 2)
+
     def take_dmg(self, amount: int):
         """
         bossovi ubira zivoty
@@ -48,7 +75,7 @@ class Boss:
         self.hp -= amount
     
     def draw(self, surface):
-        pygame.draw.rect(surface, BOSS_COLOR, self.rect)
+        surface.blit(self.image, self.rect)
 
         bar_width = BOSS_WIDTH
         bar_height = 8

@@ -11,10 +11,10 @@ class Player:
         """
         start_x, start_y - pocatecni pozice
         """
-        self.rect = pygame.Rect(0, 0, PLAYER_WIDTH, PLAYER_HEIGHT)
-        self.rect.centerx = int(start_x)
-        self.rect.centery = int(start_y)
+        self.image = pygame.image.load("assets/player.png").convert_alpha()
+        self.image = pygame.transform.scale(self.image, (50, 50))
 
+        self.rect = self.image.get_rect(center=(WINDOW_WIDTH // 2, WINDOW_HEIGHT - 80))
         # rychlost v ose x
         self.speed = PLAYER_SPEED
     
@@ -64,7 +64,7 @@ class Player:
         """
         Vykresleni hrace na obrazovku
         """
-        pygame.draw.rect(surface, PLAYER_COLOR, self.rect)
+        surface.blit(self.image, self.rect)
     
     def shoot(self) -> Bullet:
         bullet_x = self.rect.centerx

@@ -126,7 +126,7 @@ class Game:
                     if self.state == "GAME_OVER" or self.state == "VICTORY" or self.state == "HIGHSCORE":
                         self.state = "MENU"
                 if event.key == pygame.K_h:
-                    if self.state == "VICTORY" or self.state == "MENU":
+                    if self.state == "VICTORY" or self.state == "MENU" or self.state == "GAME_OVER":
                         self.state = "HIGHSCORE"
             
             # restart    

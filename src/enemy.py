@@ -3,15 +3,18 @@ Slouzi k implementaci tridy pro nepritele
 """
 
 import pygame
+import random
 from src.settings import *
 
 
 
 class Enemy:
     def __init__(self, start_x: float, start_y: float) -> None:
-        self.rect = pygame.Rect(0, 0, ENEMY_WIDTH, ENEMY_HEIGHT)
-        self.rect.centerx = int(start_x)
-        self.rect.top = int(start_y)
+        
+        self.image = pygame.image.load("assets/enemy.png").convert_alpha()
+        self.image = pygame.transform.scale(self.image, (40, 40))
+
+        self.rect = self.image.get_rect(x=random.randint(0, WINDOW_WIDTH - 40), y = -40)
 
         self.speed = ENEMY_SPEED
     
@@ -32,4 +35,4 @@ class Enemy:
         """
        vykresleni nepritele
         """
-        pygame.draw.rect(surface, ENEMY_COLOR, self.rect)
+        surface.blit(self.image, self.rect)
