@@ -12,7 +12,7 @@ class Enemy:
     def __init__(self, start_x: float, start_y: float) -> None:
         
         self.image = pygame.image.load("assets/enemy.png").convert_alpha()
-        self.image = pygame.transform.scale(self.image, (40, 40))
+        self.image = pygame.transform.scale(self.image, (60, 60))
 
         self.rect = self.image.get_rect(x=random.randint(0, WINDOW_WIDTH - 40), y = -40)
 

@@ -22,6 +22,12 @@ class Game:
 
         self.clock = pygame.time.Clock()
 
+
+        self.bg = pygame.image.load("assets/bg.png").convert()
+        self.bg = pygame.transform.scale(self.bg, (WINDOW_WIDTH, WINDOW_HEIGHT))
+        self.bg_y = 0 # osa y v podstate
+        self.bg_speed = 40 # px za sekundu
+
         start_x = WINDOW_WIDTH // 2
         start_y = WINDOW_HEIGHT - 60
         self.player = Player(start_x, start_y)
@@ -232,6 +238,10 @@ class Game:
         """
         update funkce(at se to muze hybat po obrazovce atd.)
         """
+        self.bg_y += self.bg_speed * dt
+        if self.bg_y >= WINDOW_HEIGHT:
+            self.bg_y = 0
+
         if not self.game_over and not self.paused and not self.victory:
             self.player.update(dt)
             # update strel
@@ -391,6 +401,9 @@ class Game:
             self._draw_game_status("ZADEJ JMENO! ENTER PRO POTVRZENI...", self.player_name + "_", (155, 155, 0))
             pygame.display.flip()
             return
+        
+        self.screen.blit(self.bg, (0, self.bg_y))
+        self.screen.blit(self.bg, (0, self.bg_y - WINDOW_HEIGHT))
 
         self.player.draw(self.screen)
 

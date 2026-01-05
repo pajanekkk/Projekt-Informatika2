@@ -12,7 +12,7 @@ class Player:
         start_x, start_y - pocatecni pozice
         """
         self.image = pygame.image.load("assets/player.png").convert_alpha()
-        self.image = pygame.transform.scale(self.image, (50, 50))
+        self.image = pygame.transform.scale(self.image, (70, 70))
 
         self.rect = self.image.get_rect(center=(WINDOW_WIDTH // 2, WINDOW_HEIGHT - 80))
         # rychlost v ose x
