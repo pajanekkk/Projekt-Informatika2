@@ -11,7 +11,7 @@ from src.settings import *
 class Boss:
     def __init__(self) -> None:
 
-        self.image = pygame.image.load("assets/boss.png").convert_alpha()
+        self.image = pygame.image.load("assets/img/boss2.png").convert_alpha()
         self.image = pygame.transform.scale(self.image, (170, 100))
         self.image = pygame.transform.flip(self.image, False, True)
 

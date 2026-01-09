@@ -11,10 +11,10 @@ from src.settings import *
 class Enemy:
     def __init__(self, start_x: float, start_y: float) -> None:
         
-        self.image = pygame.image.load("assets/enemy.png").convert_alpha()
+        self.image = pygame.image.load("assets/img/enemy2.png").convert_alpha()
         self.image = pygame.transform.scale(self.image, (60, 60))
 
-        self.rect = self.image.get_rect(x=random.randint(0, WINDOW_WIDTH - 40), y = -40)
+        self.rect = self.image.get_rect(x = start_x,  y = start_y)
 
         self.speed = ENEMY_SPEED
     

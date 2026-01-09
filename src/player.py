@@ -11,7 +11,7 @@ class Player:
         """
         start_x, start_y - pocatecni pozice
         """
-        self.image = pygame.image.load("assets/player.png").convert_alpha()
+        self.image = pygame.image.load("assets/img/player2.png").convert_alpha()
         self.image = pygame.transform.scale(self.image, (70, 70))
 
         self.rect = self.image.get_rect(center=(WINDOW_WIDTH // 2, WINDOW_HEIGHT - 80))
@@ -23,7 +23,7 @@ class Player:
         Zpracovani pohybu
         """
         dx = 0.0 # jakoby osa x
-        dy = 0.0
+        dy = 0.0 # osa y
 
         # posun doleva
         if pressed_keys[pygame.K_LEFT] or pressed_keys[pygame.K_a]:

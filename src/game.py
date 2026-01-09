@@ -23,7 +23,7 @@ class Game:
         self.clock = pygame.time.Clock()
 
 
-        self.bg = pygame.image.load("assets/bg.png").convert()
+        self.bg = pygame.image.load("assets/img/bg.png").convert()
         self.bg = pygame.transform.scale(self.bg, (WINDOW_WIDTH, WINDOW_HEIGHT))
         self.bg_y = 0 # osa y v podstate
         self.bg_speed = 40 # px za sekundu
@@ -108,7 +108,7 @@ class Game:
                     if event.key == pygame.K_RETURN:
                         self.state = "NAME_INPUT"
                         self.player_name = ""
-                
+                # psani jmena
                 if self.state == "NAME_INPUT":
                     if event.key == pygame.K_BACKSPACE:
                         self.player_name = self.player_name[:-1]
@@ -122,15 +122,16 @@ class Game:
                 if event.key == pygame.K_ESCAPE:
                     if not self.game_over:
                         self.paused = not self.paused
-            
+                # strelba
                 if event.key == pygame.K_SPACE: 
                     if not self.game_over and not self.paused and not self.victory:
                         new_bullet = self.player.shoot()
                         self.bullets.append(new_bullet)
-                
+                # navrat do menu
                 if event.key == pygame.K_RETURN:
                     if self.state == "GAME_OVER" or self.state == "VICTORY" or self.state == "HIGHSCORE":
                         self.state = "MENU"
+                # zebricek
                 if event.key == pygame.K_h:
                     if self.state == "VICTORY" or self.state == "MENU" or self.state == "GAME_OVER":
                         self.state = "HIGHSCORE"
@@ -149,7 +150,7 @@ class Game:
 
         self.lives = PLAYER_LIVES
         self.score = 0
-        self.curr_wave = 14
+        self.curr_wave = 0
         self.enemies_in_wave = 2
 
         self.game_over = False
@@ -240,7 +241,7 @@ class Game:
         """
         self.bg_y += self.bg_speed * dt
         if self.bg_y >= WINDOW_HEIGHT:
-            self.bg_y = 0
+            self.bg_y = 0 
 
         if not self.game_over and not self.paused and not self.victory:
             self.player.update(dt)
