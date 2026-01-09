@@ -11,8 +11,8 @@ from src.game import *
 class Bullet:
     def __init__(self, start_x: float, start_y: float) -> None:
 
-        self.image = pygame.image.load("assets/img/bullet.png").convert_alpha()
-        self.image = pygame.transform.scale(self.image, (20, 20))
+        self.image = pygame.image.load("assets/img/bullet2.png").convert_alpha()
+        self.image = pygame.transform.scale(self.image, (50, 50))
 
         self.rect = self.image.get_rect(x = start_x, y = start_y)
         
