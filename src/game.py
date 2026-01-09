@@ -28,9 +28,8 @@ class Game:
         self.bg_y = 0 # osa y v podstate
         self.bg_speed = 40 # px za sekundu
 
-        start_x = WINDOW_WIDTH // 2
-        start_y = WINDOW_HEIGHT - 60
-        self.player = Player(start_x, start_y)
+    
+        self.player = Player()
         self.boss = None
         self.highscores = self._load_highscores()
 
@@ -135,7 +134,6 @@ class Game:
                 if event.key == pygame.K_h:
                     if self.state == "VICTORY" or self.state == "MENU" or self.state == "GAME_OVER":
                         self.state = "HIGHSCORE"
-            
             # restart    
             if self.game_over or self.victory or self.paused:
                 if event.key == pygame.K_r:

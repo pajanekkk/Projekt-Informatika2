@@ -7,7 +7,7 @@ from src.bullet import Bullet
 
 
 class Player:
-    def __init__(self, start_x: float, start_y: float) -> None:
+    def __init__(self) -> None:
         """
         start_x, start_y - pocatecni pozice
         """

@@ -10,9 +10,12 @@ from src.game import *
 
 class Bullet:
     def __init__(self, start_x: float, start_y: float) -> None:
-        self.rect = pygame.Rect(0, 0, BULLET_WIDTH, BULLET_HEIGHT)
-        self.rect.centerx = int(start_x)
-        self.rect.bottom = int(start_y)
+
+        self.image = pygame.image.load("assets/img/bullet.png").convert_alpha()
+        self.image = pygame.transform.scale(self.image, (20, 20))
+
+        self.rect = self.image.get_rect(x = start_x, y = start_y)
+        
 
         self.speed = BULLET_SPEED
     
@@ -30,4 +33,7 @@ class Bullet:
         return self.rect.bottom < 0
     
     def draw(self, surface: pygame.Surface) -> None:
-        pygame.draw.rect(surface, BULLET_COLOR, self.rect)
+        """
+        vykresleni strely
+        """
+        surface.blit(self.image, self.rect)
