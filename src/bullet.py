@@ -9,14 +9,18 @@ from src.game import *
 
 
 class Bullet:
+    """
+    Trida pro strelu
+    """
+    # nacitam na urovni tridy, at nemusim pri kazdem vystrelu nacitat obrazek
+    image = pygame.image.load("assets/img/bullet2.png")
+    image = pygame.transform.scale(image, (50, 50))
+
     def __init__(self, start_x: float, start_y: float) -> None:
-
-        self.image = pygame.image.load("assets/img/bullet2.png").convert_alpha()
-        self.image = pygame.transform.scale(self.image, (50, 50))
-
-        self.rect = self.image.get_rect(x = start_x, y = start_y)
-        
-
+        """
+        start_x, start_y - pocatecni pozice
+        """
+        self.rect = Bullet.image.get_rect(centerx = start_x, y = start_y)
         self.speed = BULLET_SPEED
     
     def update(self, dt: float) -> None:
@@ -36,4 +40,4 @@ class Bullet:
         """
         vykresleni strely
         """
-        surface.blit(self.image, self.rect)
+        surface.blit(Bullet.image, self.rect)

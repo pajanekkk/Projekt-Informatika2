@@ -9,8 +9,10 @@ from src.settings import *
 
 
 class Boss:
+    """
+    Trida pro bosse
+    """
     def __init__(self) -> None:
-
         self.image = pygame.image.load("assets/img/boss2.png").convert_alpha()
         self.image = pygame.transform.scale(self.image, (170, 100))
         self.image = pygame.transform.flip(self.image, False, True)
@@ -75,6 +77,9 @@ class Boss:
         self.hp -= amount
     
     def draw(self, surface):
+        """
+        vykresleni bosse
+        """
         surface.blit(self.image, self.rect)
 
         bar_width = BOSS_WIDTH

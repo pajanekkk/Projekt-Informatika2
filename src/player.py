@@ -7,10 +7,11 @@ from src.bullet import Bullet
 
 
 class Player:
+    """
+    Trida pro hrace
+    """
     def __init__(self) -> None:
-        """
-        start_x, start_y - pocatecni pozice
-        """
+        
         self.image = pygame.image.load("assets/img/player2.png").convert_alpha()
         self.image = pygame.transform.scale(self.image, (70, 70))
 

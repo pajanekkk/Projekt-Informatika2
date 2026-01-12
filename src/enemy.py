@@ -9,8 +9,13 @@ from src.settings import *
 
 
 class Enemy:
+    """
+    Trida pro nepritele
+    """
     def __init__(self, start_x: float, start_y: float) -> None:
-        
+        """
+        start_x, start_y - pocatecni pozice
+        """
         self.image = pygame.image.load("assets/img/enemy2.png").convert_alpha()
         self.image = pygame.transform.scale(self.image, (60, 60))
 
