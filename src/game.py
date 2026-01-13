@@ -18,7 +18,7 @@ class Game:
         pygame.init()
 
         self.screen = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
-        pygame.display.set_caption("DRONY ÚTOČÍ!")
+        pygame.display.set_caption("ÚTOK DRONŮ")
 
         self.clock = pygame.time.Clock()
 
@@ -63,6 +63,13 @@ class Game:
 
         self.state = "MENU"
         self.player_name = ""
+
+        self.shoot_sound = pygame.mixer.Sound("assets/sounds/shoot.wav")
+        self.boss_hit_player_sound = pygame.mixer.Sound("assets/sounds/boss_hit-player.wav")
+        self.collision_sound = pygame.mixer.Sound("assets/sounds/collision.wav")
+        self.shoot_sound.set_volume(0.5)
+        self.boss_hit_player_sound.set_volume(0.6)
+        self.collision_sound.set_volume(0.6)
 
         self.running = True
         self._start_wave()
@@ -125,6 +132,7 @@ class Game:
                 if event.key == pygame.K_SPACE: 
                     if not self.game_over and not self.paused and not self.victory:
                         new_bullet = self.player.shoot()
+                        self.shoot_sound.play()
                         self.bullets.append(new_bullet)
                 # navrat do menu
                 if event.key == pygame.K_RETURN:
@@ -148,7 +156,7 @@ class Game:
 
         self.lives = PLAYER_LIVES
         self.score = 0
-        self.curr_wave = 0
+        self.curr_wave = 14
         self.enemies_in_wave = 2
 
         self.game_over = False
@@ -202,6 +210,7 @@ class Game:
         for enemy in self.enemies:
             if enemy.rect.colliderect(self.player.rect):
                 enemies_hit_player.append(enemy)
+                self.collision_sound.play()
                 self.lives -= 1
                 self.flash_timer = self.flash_t_dur
 
@@ -226,6 +235,7 @@ class Game:
             for b in self.boss_bullets[:]:
                 if b.rect.colliderect(self.player.rect):
                     self.boss_bullets.remove(b)
+                    self.boss_hit_player_sound.play()
                     self.lives -= 1
                     self.flash_timer = self.flash_t_dur
                     if self.lives <= 0:
@@ -391,7 +401,7 @@ class Game:
         """
         self.screen.fill((0, 0, 0))
         if self.state == "MENU":
-            self._draw_game_status("DRONY ÚTOČÍ!", "Zmackni ENTER pro zahájení hry / H pro zebricek", (255, 255, 255))
+            self._draw_game_status("ŮTOK DRONŮ!", "Zmackni ENTER pro zahájení hry / H pro zebricek", (255, 255, 255))
 
             pygame.display.flip()
             return
