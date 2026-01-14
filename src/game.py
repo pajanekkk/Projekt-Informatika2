@@ -61,15 +61,22 @@ class Game:
 
         self.victory = False
 
-        self.state = "MENU"
-        self.player_name = ""
-
         self.shoot_sound = pygame.mixer.Sound("assets/sounds/shoot.wav")
         self.boss_hit_player_sound = pygame.mixer.Sound("assets/sounds/boss_hit-player.wav")
         self.collision_sound = pygame.mixer.Sound("assets/sounds/collision.wav")
+        self.menu_song = pygame.mixer.Sound("assets/sounds/menu.wav")
+        self.play_song = pygame.mixer.Sound("assets/sounds/playing1.wav")
+        self.losing_sound = pygame.mixer.Sound("assets/sounds/losing.wav")
         self.shoot_sound.set_volume(0.5)
-        self.boss_hit_player_sound.set_volume(0.6)
+        self.boss_hit_player_sound.set_volume(0.7)
         self.collision_sound.set_volume(0.6)
+        self.menu_song.set_volume(0.5)
+        self.play_song.set_volume(0.5)
+        self.losing_sound.set_volume(0.6)
+
+        self.state = "MENU"
+        self.player_name = ""
+
 
         self.running = True
         self._start_wave()
@@ -111,6 +118,7 @@ class Game:
             if event.type == pygame.KEYDOWN:
             # prechod z menu
                 if self.state == "MENU":
+                    self.menu_song.play()
                     if event.key == pygame.K_RETURN:
                         self.state = "NAME_INPUT"
                         self.player_name = ""
@@ -120,6 +128,7 @@ class Game:
                         self.player_name = self.player_name[:-1]
                     elif event.key == pygame.K_RETURN:
                         if len(self.player_name) > 0:
+                            self.menu_song.stop()
                             self._start_game()
                     else:
                         if len(self.player_name) < 8 and event.unicode.isalnum():
@@ -181,6 +190,7 @@ class Game:
         """
         spusti hru tzv. prechod z menu do akce
         """
+        self.play_song.play()
         self.state = "PLAYING"
         self._restart_game()
 
@@ -229,9 +239,11 @@ class Game:
                     self.boss.take_dmg(1)
 
                 if self.boss and self.boss.hp <= 0:
+                    self.play_song.stop()
                     self.boss = None
                     self.state = "VICTORY"
                     self._save_highscore()
+                    
             for b in self.boss_bullets[:]:
                 if b.rect.colliderect(self.player.rect):
                     self.boss_bullets.remove(b)
@@ -239,8 +251,11 @@ class Game:
                     self.lives -= 1
                     self.flash_timer = self.flash_t_dur
                     if self.lives <= 0:
-                        self.state = "GAME_OVER"
+                        self.play_song.stop()
                         self.boss = None
+                        self.state = "GAME_OVER"
+                        self.losing_sound.play()
+    
 
 
     def _update(self, dt: float) -> None:

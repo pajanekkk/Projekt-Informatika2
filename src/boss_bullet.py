@@ -9,9 +9,11 @@ class BossBullet:
     """
     Trida pro strelu od bosse
     """
-    def __init__(self, x: int, y: int, dx: int = 0) -> None:
+    image = pygame.image.load("assets/img/boss_rocket.png")
+    image = pygame.transform.scale(image, (50, 50))
+    def __init__(self, start_x: int, start_y: int, dx: int = 0) -> None:
 
-        self.rect = pygame.Rect(x - 6, y, 12, 18)
+        self.rect = BossBullet.image.get_rect(centerx = start_x, y = start_y)
         self.speed_y = 300
         self.speed_x = dx
 
@@ -33,4 +35,4 @@ class BossBullet:
         """
         vykresleni strely bosse
         """
-        pygame.draw.rect(surface, BOSS_BULL_COL, self.rect)
+        surface.blit(BossBullet.image, self.rect)
