@@ -26,7 +26,7 @@ ENEMY_COLOR = (255, 0, 0)   # cervena
 BOSS_SPEED = 200
 BOSS_WIDTH = 120
 BOSS_HEIGHT = 50
-BOSS_HP = 50
+BOSS_HP = 2
 BOSS_COLOR = (120, 0, 200)  # fialova (drahota)
 
 BOSS_BULL_COL = (255, 80, 80) # svetlejsi cervena

@@ -6,12 +6,12 @@ import random
 import json
 import os
 
-from src.player import *
+from src.player import Player
 from src.settings import *
-from src.bullet import *
-from src.enemy import *
-from src.boss import *
-from src.boss_bullet import *
+from src.enemy import Enemy
+from src.boss import Boss
+from src.boss_bullet import BossBullet
+from src.explosion import Explosion
 
 class Game:
     def __init__(self) -> None:
@@ -50,6 +50,9 @@ class Game:
         self.flash_timer = 0.0
         self.flash_t_dur = 0.15 # sekundy
 
+        self.boss_dying = False
+        self.boss_death_timer = 0.0
+
         self.score = 0
         self.lives = PLAYER_LIVES
 
@@ -61,18 +64,22 @@ class Game:
 
         self.victory = False
 
+        self.explosions = []
+
         self.shoot_sound = pygame.mixer.Sound("assets/sounds/shoot.wav")
         self.boss_hit_player_sound = pygame.mixer.Sound("assets/sounds/boss_hit-player.wav")
         self.collision_sound = pygame.mixer.Sound("assets/sounds/collision.wav")
         self.menu_song = pygame.mixer.Sound("assets/sounds/menu.wav")
         self.play_song = pygame.mixer.Sound("assets/sounds/playing1.wav")
         self.losing_sound = pygame.mixer.Sound("assets/sounds/losing.wav")
+        self.explosion_boss_sound = pygame.mixer.Sound("assets/sounds/explosion_boss_sound.wav")
         self.shoot_sound.set_volume(0.5)
         self.boss_hit_player_sound.set_volume(0.7)
         self.collision_sound.set_volume(0.6)
         self.menu_song.set_volume(0.5)
         self.play_song.set_volume(0.5)
         self.losing_sound.set_volume(0.6)
+        self.explosion_boss_sound.set_volume(0.6)
 
         self.state = "MENU"
         self.player_name = ""
@@ -209,6 +216,7 @@ class Game:
                 if bullet.rect.colliderect(enemy.rect):
                     bullets_to_remove.append(bullet)
                     enemies_to_remove.append(enemy)
+                    self.explosions.append(Explosion(enemy.rect.centerx, enemy.rect.centery))
                     self.score += 100
         
         # odstrani trefene objekty
@@ -234,15 +242,19 @@ class Game:
         # strela hrace vs boss
         if self.boss:
             for bullet in self.bullets[:]:
-                if self.boss and bullet.rect.colliderect(self.boss.rect):
+                if not self.boss_dying and bullet.rect.colliderect(self.boss.rect):
                     self.bullets.remove(bullet)
                     self.boss.take_dmg(1)
 
-                if self.boss and self.boss.hp <= 0:
-                    self.play_song.stop()
-                    self.boss = None
-                    self.state = "VICTORY"
-                    self._save_highscore()
+            if self.boss and self.boss.hp <= 0 and not self.boss_dying:
+                self.boss_dying = True
+                self.boss_death_timer = 3.0                
+                self.explosions.append(Explosion(self.boss.rect.centerx, self.boss.rect.centery, is_boss=True))
+                self.explosion_boss_sound.play()
+                self.explosions.append(Explosion(self.boss.rect.centerx - 20, self.boss.rect.centery - 20, is_boss=True))
+                self.explosions.append(Explosion(self.boss.rect.centerx + 20, self.boss.rect.centery + 20, is_boss=True))
+                self.play_song.stop()
+                self._save_highscore()
                     
             for b in self.boss_bullets[:]:
                 if b.rect.colliderect(self.player.rect):
@@ -275,7 +287,11 @@ class Game:
             # update enemies
             for enemy in self.enemies:
                 enemy.update(dt)
+            
+            for exp in self.explosions:
+                exp.update(dt)
 
+        
         # kolize
         self._check_collisions()
         # smazat strely mimo okno
@@ -304,6 +320,8 @@ class Game:
                 
                 if self.curr_wave == MAX_WAVES:
                     self.boss = Boss()
+                    self.boss_dying = False
+                    self.boss_death_timer = 0.0
                     self.wave_active = False
                     self.wave_pause = False
                     return
@@ -315,9 +333,10 @@ class Game:
 
                 self._start_wave()
         if self.boss:
-            self.boss.update(dt)
+            if not self.boss_dying:
+                self.boss.update(dt)
         
-        if self.boss and self.boss.can_boss_shoot():
+        if self.boss and self.boss.can_boss_shoot() and not self.boss_dying:
             bx = self.boss.rect.centerx
             by = self.boss.rect.bottom
             self.boss_bullets.append(BossBullet(bx, by, 0))
@@ -327,6 +346,18 @@ class Game:
         for b in self.boss_bullets:
             b.update(dt)
         self.boss_bullets = [b for b in self.boss_bullets if not b.is_offscreen()]
+
+        if self.boss_dying:
+            self.boss_death_timer -= dt
+            if self.boss_death_timer <= 0.0:
+                self.boss = None
+                self.boss_dying = False
+                self.boss_death_timer = 0.0
+                self.state = "VICTORY"
+                self._save_highscore()
+                self.boss_bullets.clear()
+
+        self.explosions = [e for e in self.explosions if not e.finished]
 
         if self.flash_timer > 0:
             self.flash_timer -= dt
@@ -437,6 +468,9 @@ class Game:
 
         for enemy in self.enemies:
             enemy.draw(self.screen)
+        
+        for exp in self.explosions:
+            exp.draw(self.screen)
         
         if self.boss:
             self.boss.draw(self.screen)
