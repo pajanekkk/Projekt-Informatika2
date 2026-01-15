@@ -89,6 +89,14 @@ class Game:
         self.state = "MENU"
         self.player_name = ""
 
+        self.menu_items = ["SPUSTIT HRU", "NASTAVENÍ", "NEJVYŠŠÍ SKÓRE", "UKONČIT"]
+        self.menu_index = 0
+
+        self.settings_items = ["POCET VLN"]
+        self.settings_index = 0
+        self.wave_opts = [15, 25, 35]
+        self.wave_opt_index = 1 # defaultne 15
+
 
         self.running = True
         self._start_wave()
@@ -131,9 +139,27 @@ class Game:
             # prechod z menu
                 if self.state == "MENU":
                     self.menu_song.play()
-                    if event.key == pygame.K_RETURN:
-                        self.state = "NAME_INPUT"
-                        self.player_name = ""
+                    if event.key == pygame.K_UP:
+                        self.menu_index = (self.menu_index - 1) % len(self.menu_items)
+                    elif event.key == pygame.K_DOWN:
+                        self.menu_index = (self.menu_index + 1) % len(self.menu_items)
+                    elif event.key == pygame.K_RETURN:
+                        choice = self.menu_items[self.menu_index]
+                        if choice == "SPUSTIT HRU":
+                            self.state = "NAME_INPUT"
+                        elif choice == "NASTAVENÍ":
+                            self.state = "SETTINGS"
+                        elif choice == "NEJVYŠŠÍ SKÓRE":
+                            self.state = "HIGHSCORE"
+                        elif choice == "UKONČIT":
+                            self.running = False
+                if self.state == "SETTINGS":
+                    if event.key == pygame.K_LEFT:
+                        self.wave_opt_index = (self.wave_opt_index - 1) % len(self.wave_opts)
+                    elif event.key == pygame.K_RIGHT:
+                        self.wave_opt_index = (self.wave_opt_index - 1) % len(self.wave_opts)
+                    elif event.key == pygame.K_ESCAPE:
+                        self.state = "MENU"
                 # psani jmena
                 if self.state == "NAME_INPUT":
                     if event.key == pygame.K_BACKSPACE:
@@ -217,6 +243,9 @@ class Game:
         """
         spusti hru tzv. prechod z menu do akce
         """
+        global MAX_WAVES
+        MAX_WAVES = self.wave_opts[self.wave_opt_index]
+
         self.play_song.play()
         self.state = "PLAYING"
         self._restart_game()
@@ -288,8 +317,6 @@ class Game:
                         self.state = "GAME_OVER"
                         self.losing_sound.play()
     
-
-
     def _update(self, dt: float) -> None:
         """
         update funkce(at se to muze hybat po obrazovce atd.)
@@ -478,8 +505,27 @@ class Game:
         vykreslovani na obrazovku
         """
         self.screen.fill((0, 0, 0))
+        font = pygame.font.SysFont(None, 36)
         if self.state == "MENU":
-            self._draw_game_status("ŮTOK DRONŮ!", "Zmackni ENTER pro zahájení hry / H pro zebricek", (255, 255, 255))
+             
+            y = 200
+            for i, item in enumerate(self.menu_items):
+                color = (255, 255, 255) if i == self.menu_index else (150, 150, 150)
+                prefix = "> " if i == self.menu_index else "  "
+                text = font.render(prefix+item, True, color)
+                self.screen.blit(text, text.get_rect(center=(WINDOW_WIDTH //2, y)))
+                y += 40
+            pygame.display.flip()
+            return
+
+        if self.state == "SETTINGS":
+
+            value = self.wave_opts[self.wave_opt_index]
+            line = font.render(f"Počet vln: {value}", True, (255, 255, 255))
+            hint = pygame.font.SysFont(None, 24).render("< DOLEVA | DOPRAVA >   ESC = ZPĚT", True, (160, 160, 160))
+
+            self.screen.blit(line, line.get_rect(center=(WINDOW_WIDTH//2, 240)))
+            self.screen.blit(hint, hint.get_rect(center=(WINDOW_WIDTH//2, 300)))
 
             pygame.display.flip()
             return
