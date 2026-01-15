@@ -11,14 +11,15 @@ class Explosion:
     def __init__(self, start_x, start_y, *, is_boss: bool = False) -> None:
         # tady je scaling
         if is_boss:
-            self.frames = [pygame.transform.scale(img, (120, 120)) for img in Explosion._raw_frames]
+            self.frames = [pygame.transform.scale(img, (140, 140)) for img in Explosion._raw_frames]
         else:
             self.frames = [pygame.transform.scale(img, (50, 50)) for img in Explosion._raw_frames]
 
         self.index = 0
         self.timer = 0.0
+
         if is_boss:
-            self.frame_rate = 0.20
+            self.frame_rate = 0.03
         else: 
             self.frame_rate = 0.08
         self.image = self.frames[self.index]
@@ -39,7 +40,7 @@ class Explosion:
                 self.finished = True
             else:
                 self.image = self.frames[self.index]
-
+        
     def draw(self, surface):
         """
         vykresleni vybuchu

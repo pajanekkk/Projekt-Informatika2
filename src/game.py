@@ -23,10 +23,10 @@ class Game:
         self.clock = pygame.time.Clock()
 
 
-        self.bg = pygame.image.load("assets/img/bg.png").convert()
+        """ self.bg = pygame.image.load("assets/img/bg.png").convert()
         self.bg = pygame.transform.scale(self.bg, (WINDOW_WIDTH, WINDOW_HEIGHT))
         self.bg_y = 0 # osa y v podstate
-        self.bg_speed = 40 # px za sekundu
+        self.bg_speed = 40 # px za sekundu """
 
     
         self.player = Player()
@@ -46,6 +46,11 @@ class Game:
         self.wave_pause = False
         self.wave_p_timer = 0.0
         self.wave_p_dur = 3.0
+
+        self.spawn_queue = []
+        self.spawn_q_timer = 0.0
+        self.spawn_delay = 1
+
 
         self.flash_timer = 0.0
         self.flash_t_dur = 0.15 # sekundy
@@ -172,7 +177,7 @@ class Game:
 
         self.lives = PLAYER_LIVES
         self.score = 0
-        self.curr_wave = 14
+        self.curr_wave = 0
         self.enemies_in_wave = 2
 
         self.game_over = False
@@ -182,16 +187,31 @@ class Game:
         self.curr_wave = self.curr_wave + 1
         self._start_wave()
 
-
     def _start_wave(self) -> None:
         """
         spawne novou vlnu
         """
         self.wave_active = True
+        self.spawn_queue.clear()
+        
+        padding = 20
+        enemy_w = ENEMY_WIDTH
+        
+        cols = WINDOW_WIDTH // (enemy_w + padding)
+
+        used_cols = []
+
         for _ in range(self.enemies_in_wave):
-            x = random.randint(ENEMY_WIDTH // 2, WINDOW_WIDTH - ENEMY_WIDTH // 2)
-            y = random.randint(-300, -ENEMY_HEIGHT)
-            self.enemies.append(Enemy(x, y))
+            # vybere nahodny volny "slot"
+            col = random.randint(0, cols - 1)
+            while col in used_cols:
+                col = random.randint(0, cols - 1)
+            used_cols.append(col)
+
+            x = col * (enemy_w + padding) + padding
+            y = random.randint(-200, -50)
+            
+            self.spawn_queue.append((x, y))
 
     def _start_game(self) -> None:
         """
@@ -274,9 +294,19 @@ class Game:
         """
         update funkce(at se to muze hybat po obrazovce atd.)
         """
-        self.bg_y += self.bg_speed * dt
+        
+        """ self.bg_y += self.bg_speed * dt
         if self.bg_y >= WINDOW_HEIGHT:
-            self.bg_y = 0 
+            self.bg_y = 0 """ 
+        
+        if self.wave_active and self.spawn_queue:
+            self.spawn_q_timer += dt
+
+            if self.spawn_q_timer >= self.spawn_delay:
+                self.spawn_q_timer = 0.0
+                x, y = self.spawn_queue.pop(0)
+                self.enemies.append(Enemy(x, y))
+
 
         if not self.game_over and not self.paused and not self.victory:
             self.player.update(dt)
@@ -291,7 +321,6 @@ class Game:
             for exp in self.explosions:
                 exp.update(dt)
 
-        
         # kolize
         self._check_collisions()
         # smazat strely mimo okno
@@ -306,11 +335,12 @@ class Game:
         self.enemies = remaining_enemies
         
         # dalsi vlna
-        if self.wave_active and len(self.enemies) == 0:
+        if self.wave_active and not self.enemies and not self.spawn_queue:
             self.wave_active = False
             self.wave_pause = True
             self.wave_p_timer = 0.0
 
+        
         # mezipauza u vln
         if self.wave_pause:
             self.wave_p_timer += dt
@@ -332,6 +362,8 @@ class Game:
                 self.enemies_in_wave += 1
 
                 self._start_wave()
+
+        
         if self.boss:
             if not self.boss_dying:
                 self.boss.update(dt)
@@ -457,8 +489,8 @@ class Game:
             pygame.display.flip()
             return
         
-        self.screen.blit(self.bg, (0, self.bg_y))
-        self.screen.blit(self.bg, (0, self.bg_y - WINDOW_HEIGHT))
+        """ self.screen.blit(self.bg, (0, self.bg_y))
+        self.screen.blit(self.bg, (0, self.bg_y - WINDOW_HEIGHT)) """
 
         self.player.draw(self.screen)
 
