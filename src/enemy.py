@@ -12,7 +12,7 @@ class Enemy:
     """
     Trida pro nepritele
     """
-    def __init__(self, start_x: float, start_y: float) -> None:
+    def __init__(self, start_x: float, start_y: float, speed_mult=1.0) -> None:
         """
         start_x, start_y - pocatecni pozice
         """
@@ -21,7 +21,7 @@ class Enemy:
 
         self.rect = self.image.get_rect(x = start_x,  y = start_y)
 
-        self.speed = ENEMY_SPEED
+        self.speed = ENEMY_SPEED * speed_mult
     
     def update(self, dt: float) -> None:
         """

@@ -86,17 +86,25 @@ class Game:
         self.losing_sound.set_volume(0.6)
         self.explosion_boss_sound.set_volume(0.6)
 
+        self.curr_music = None
+
         self.state = "MENU"
         self.player_name = ""
 
         self.menu_items = ["SPUSTIT HRU", "NASTAVENÍ", "NEJVYŠŠÍ SKÓRE", "UKONČIT"]
         self.menu_index = 0
 
-        self.settings_items = ["POCET VLN"]
         self.settings_index = 0
+        
         self.wave_opts = [15, 25, 35]
         self.wave_opt_index = 1 # defaultne 15
 
+        self.enemy_speed_opts = [
+            ("POMALÝ", 0.7),
+            ("NORMALNÍ", 1.0),
+            ("RYCHLE", 1.3),
+        ]
+        self.enemy_speed_index = 1 # defaultne na NORMAL
 
         self.running = True
         self._start_wave()
@@ -138,7 +146,7 @@ class Game:
             if event.type == pygame.KEYDOWN:
             # prechod z menu
                 if self.state == "MENU":
-                    self.menu_song.play()
+                    self._play_music(self.menu_song, True)
                     if event.key == pygame.K_UP:
                         self.menu_index = (self.menu_index - 1) % len(self.menu_items)
                     elif event.key == pygame.K_DOWN:
@@ -153,11 +161,25 @@ class Game:
                             self.state = "HIGHSCORE"
                         elif choice == "UKONČIT":
                             self.running = False
+                
                 if self.state == "SETTINGS":
+                    if event.key == pygame.K_UP:
+                        self.settings_index = (self.settings_index - 1) % 2
+                    if event.key == pygame.K_DOWN:
+                        self.settings_index = (self.settings_index + 1) % 2
+
                     if event.key == pygame.K_LEFT:
-                        self.wave_opt_index = (self.wave_opt_index - 1) % len(self.wave_opts)
+                        if self.settings_index == 0:
+                            self.wave_opt_index = (self.wave_opt_index - 1) % len(self.wave_opts)
+                        if self.settings_index == 1:
+                            self.enemy_speed_index = (self.enemy_speed_index - 1) % len(self.enemy_speed_opts)
+
                     elif event.key == pygame.K_RIGHT:
-                        self.wave_opt_index = (self.wave_opt_index - 1) % len(self.wave_opts)
+                        if self.settings_index == 0:
+                            self.wave_opt_index = (self.wave_opt_index - 1) % len(self.wave_opts)
+                        if self.settings_index == 1:
+                            self.enemy_speed_index = (self.enemy_speed_index + 1) % len(self.enemy_speed_opts)
+                    
                     elif event.key == pygame.K_ESCAPE:
                         self.state = "MENU"
                 # psani jmena
@@ -166,7 +188,6 @@ class Game:
                         self.player_name = self.player_name[:-1]
                     elif event.key == pygame.K_RETURN:
                         if len(self.player_name) > 0:
-                            self.menu_song.stop()
                             self._start_game()
                     else:
                         if len(self.player_name) < 8 and event.unicode.isalnum():
@@ -182,7 +203,7 @@ class Game:
                         self.shoot_sound.play()
                         self.bullets.append(new_bullet)
                 # navrat do menu
-                if event.key == pygame.K_RETURN:
+                if event.key == pygame.K_ESCAPE:
                     if self.state == "GAME_OVER" or self.state == "VICTORY" or self.state == "HIGHSCORE":
                         self.state = "MENU"
                 # zebricek
@@ -245,8 +266,10 @@ class Game:
         """
         global MAX_WAVES
         MAX_WAVES = self.wave_opts[self.wave_opt_index]
+        self.enemy_speed_mult = self.enemy_speed_opts[self.enemy_speed_index][1]
 
-        self.play_song.play()
+
+        self._play_music(self.play_song, True)
         self.state = "PLAYING"
         self._restart_game()
 
@@ -287,6 +310,7 @@ class Game:
 
         # game over
         if self.lives <= 0:
+            self._play_music(self.losing_sound, False)
             self.state = "GAME_OVER"
         # strela hrace vs boss
         if self.boss:
@@ -302,7 +326,6 @@ class Game:
                 self.explosion_boss_sound.play()
                 self.explosions.append(Explosion(self.boss.rect.centerx - 20, self.boss.rect.centery - 20, is_boss=True))
                 self.explosions.append(Explosion(self.boss.rect.centerx + 20, self.boss.rect.centery + 20, is_boss=True))
-                self.play_song.stop()
                 self._save_highscore()
                     
             for b in self.boss_bullets[:]:
@@ -312,10 +335,10 @@ class Game:
                     self.lives -= 1
                     self.flash_timer = self.flash_t_dur
                     if self.lives <= 0:
-                        self.play_song.stop()
                         self.boss = None
+                        self._play_music(self.losing_sound, False)
                         self.state = "GAME_OVER"
-                        self.losing_sound.play()
+        
     
     def _update(self, dt: float) -> None:
         """
@@ -332,7 +355,7 @@ class Game:
             if self.spawn_q_timer >= self.spawn_delay:
                 self.spawn_q_timer = 0.0
                 x, y = self.spawn_queue.pop(0)
-                self.enemies.append(Enemy(x, y))
+                self.enemies.append(Enemy(x, y, self.enemy_speed_mult))
 
 
         if not self.game_over and not self.paused and not self.victory:
@@ -498,6 +521,9 @@ class Game:
             self.screen.blit(text, text_rect)
             y += 50
 
+        hint = pygame.font.SysFont(None, 24).render("ESC = ZPĚT", True, (160, 160, 160))
+        self.screen.blit(hint, hint.get_rect(center=(WINDOW_WIDTH // 2, WINDOW_HEIGHT - 60)))
+
         pygame.display.flip()
 
     def _draw(self) -> None:
@@ -520,15 +546,30 @@ class Game:
 
         if self.state == "SETTINGS":
 
-            value = self.wave_opts[self.wave_opt_index]
-            line = font.render(f"Počet vln: {value}", True, (255, 255, 255))
-            hint = pygame.font.SysFont(None, 24).render("< DOLEVA | DOPRAVA >   ESC = ZPĚT", True, (160, 160, 160))
+            wave_val = self.wave_opts[self.wave_opt_index]
+            speed_name = self.enemy_speed_opts[self.enemy_speed_index][1]
+            
+            lines = [
+                f"Počet vln: {wave_val}",
+                f"Rychlost nepřátel: {speed_name}"
+            ]
 
-            self.screen.blit(line, line.get_rect(center=(WINDOW_WIDTH//2, 240)))
+            y = 240
+            for i, line in enumerate(lines):
+                color = (255, 255, 255) if i == self.settings_index else (150, 150, 150)
+                text = font.render(line, True, color)
+                self.screen.blit(text, text.get_rect(center=(WINDOW_WIDTH // 2, y)))
+                y += 40
+
+            hint = pygame.font.SysFont(None, 24).render("<-     ->   ESC = BACK", True, (160,160,160))
+            
             self.screen.blit(hint, hint.get_rect(center=(WINDOW_WIDTH//2, 300)))
-
             pygame.display.flip()
             return
+
+        if self.state == "HIGHSCORE":
+            self._draw_hs()
+
 
         if self.state == "NAME_INPUT":
             self._draw_game_status("ZADEJ JMENO! ENTER PRO POTVRZENI...", self.player_name + "_", (155, 155, 0))
@@ -616,3 +657,12 @@ class Game:
 
         with open("highscores.json", 'w') as f:
             json.dump(self.highscores, f, indent=2)
+
+    def _play_music(self, music: pygame.mixer.Sound, loop=True):
+        """
+        konecne muzeme hrat hudbicku ve smycce :3
+        """
+        if self.curr_music != music:
+            pygame.mixer.stop()
+            self.curr_music = music
+            music.play(-1 if loop else 0)
