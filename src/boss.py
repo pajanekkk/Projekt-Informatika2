@@ -5,9 +5,6 @@ import pygame
 import random
 from src.settings import *
 
-
-
-
 class Boss:
     """
     Trida pro bosse

@@ -22,7 +22,6 @@ class Game:
 
         self.clock = pygame.time.Clock()
 
-
         """ self.bg = pygame.image.load("assets/img/bg.png").convert()
         self.bg = pygame.transform.scale(self.bg, (WINDOW_WIDTH, WINDOW_HEIGHT))
         self.bg_y = 0 # osa y v podstate
@@ -78,14 +77,7 @@ class Game:
         self.play_song = pygame.mixer.Sound("assets/sounds/playing1.wav")
         self.losing_sound = pygame.mixer.Sound("assets/sounds/losing.wav")
         self.explosion_boss_sound = pygame.mixer.Sound("assets/sounds/explosion_boss_sound.wav")
-        self.shoot_sound.set_volume(0.5)
-        self.boss_hit_player_sound.set_volume(0.7)
-        self.collision_sound.set_volume(0.6)
-        self.menu_song.set_volume(0.5)
-        self.play_song.set_volume(0.5)
-        self.losing_sound.set_volume(0.6)
-        self.explosion_boss_sound.set_volume(0.6)
-
+        
         self.curr_music = None
 
         self.state = "MENU"
@@ -93,7 +85,7 @@ class Game:
 
         self.menu_items = ["SPUSTIT HRU", "NASTAVENÍ", "NEJVYŠŠÍ SKÓRE", "UKONČIT"]
         self.menu_index = 0
-
+        
         self.settings_index = 0
         
         self.wave_opts = [15, 25, 35]
@@ -105,6 +97,12 @@ class Game:
             ("RYCHLE", 1.3),
         ]
         self.enemy_speed_index = 1 # defaultne na NORMAL
+
+        self.music_vol = 0.6
+        self.sfx_vol = 0.8
+        self.vol_step = 0.1
+
+        self._apply_volume()
 
         self.running = True
         self._start_wave()
@@ -164,21 +162,33 @@ class Game:
                 
                 if self.state == "SETTINGS":
                     if event.key == pygame.K_UP:
-                        self.settings_index = (self.settings_index - 1) % 2
+                        self.settings_index = (self.settings_index - 1) % 4
                     if event.key == pygame.K_DOWN:
-                        self.settings_index = (self.settings_index + 1) % 2
+                        self.settings_index = (self.settings_index + 1) % 4
 
                     if event.key == pygame.K_LEFT:
                         if self.settings_index == 0:
                             self.wave_opt_index = (self.wave_opt_index - 1) % len(self.wave_opts)
                         if self.settings_index == 1:
                             self.enemy_speed_index = (self.enemy_speed_index - 1) % len(self.enemy_speed_opts)
+                        if self.settings_index == 2:
+                            self.sfx_vol = max(0.0, self.sfx_vol - self.vol_step)
+                            self._apply_volume()
+                        if self.settings_index == 3:
+                            self.music_vol = max(0.0, self.music_vol - self.vol_step)
+                            self._apply_volume()
 
                     elif event.key == pygame.K_RIGHT:
                         if self.settings_index == 0:
-                            self.wave_opt_index = (self.wave_opt_index - 1) % len(self.wave_opts)
+                            self.wave_opt_index = (self.wave_opt_index + 1) % len(self.wave_opts)
                         if self.settings_index == 1:
                             self.enemy_speed_index = (self.enemy_speed_index + 1) % len(self.enemy_speed_opts)
+                        if self.settings_index == 2:
+                            self.sfx_vol = min(1.0, self.sfx_vol + self.vol_step)
+                            self._apply_volume()
+                        if self.settings_index == 3:
+                            self.music_vol = min(1.0, self.music_vol + self.vol_step)
+                            self._apply_volume()
                     
                     elif event.key == pygame.K_ESCAPE:
                         self.state = "MENU"
@@ -193,8 +203,8 @@ class Game:
                         if len(self.player_name) < 8 and event.unicode.isalnum():
                             self.player_name += event.unicode.upper()
                 # pauza
-                if event.key == pygame.K_ESCAPE:
-                    if not self.game_over:
+                if event.key == pygame.K_p:
+                    if not self.game_over and self.state == "PLAYING":
                         self.paused = not self.paused
                 # strelba
                 if event.key == pygame.K_SPACE: 
@@ -210,10 +220,13 @@ class Game:
                 if event.key == pygame.K_h:
                     if self.state == "VICTORY" or self.state == "MENU" or self.state == "GAME_OVER":
                         self.state = "HIGHSCORE"
-            # restart    
-            if self.game_over or self.victory or self.paused:
-                if event.key == pygame.K_r:
-                    self._restart_game()
+                if event.key == pygame.K_q:
+                    if self.paused:
+                        self.running = False
+                # restart   
+                if self.game_over or self.victory or self.paused:
+                    if event.key == pygame.K_r:
+                        self._restart_game()
 
     def _restart_game(self) -> None:
         """
@@ -548,10 +561,15 @@ class Game:
 
             wave_val = self.wave_opts[self.wave_opt_index]
             speed_name = self.enemy_speed_opts[self.enemy_speed_index][1]
-            
+            sfx_pct = int(self.sfx_vol * 100)
+            music_pct = int(self.music_vol * 100)
+
+
             lines = [
                 f"Počet vln: {wave_val}",
-                f"Rychlost nepřátel: {speed_name}"
+                f"Rychlost nepřátel: {speed_name}",
+                f"Hlasitost zvuku: {sfx_pct}",
+                f"Hlasitost hudby: {music_pct}"
             ]
 
             y = 240
@@ -604,9 +622,11 @@ class Game:
 
         text_scoliv = font.render(f"Skóre: {self.score} Životy: {self.lives}", True, (255, 255, 255))
         text_wave = font.render(f"Vlna: {self.curr_wave}", True, (255, 255, 255))
+        text_pause = font.render(f"P pro pauzu", True, (255, 255, 255))
 
         self.screen.blit(text_scoliv, (10, 10))
         self.screen.blit(text_wave, (10, 30))
+        self.screen.blit(text_pause, (700, 10))
 
 
         # vykresleni mezipauzy u vln
@@ -666,3 +686,14 @@ class Game:
             pygame.mixer.stop()
             self.curr_music = music
             music.play(-1 if loop else 0)
+        
+    def _apply_volume(self):
+        self.menu_song.set_volume(self.music_vol)
+        self.play_song.set_volume(self.music_vol)
+
+        self.shoot_sound.set_volume(self.sfx_vol * 0.6)
+        self.boss_hit_player_sound.set_volume(self.sfx_vol * 0.6)
+        self.collision_sound.set_volume(self.sfx_vol *  0.7)
+        self.explosion_boss_sound.set_volume(self.sfx_vol * 0.6)
+        self.losing_sound.set_volume(0.6 * self.sfx_vol)
+        
