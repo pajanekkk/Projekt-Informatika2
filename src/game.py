@@ -31,6 +31,7 @@ class Game:
         self.font_menu = pygame.font.Font("assets/fonts/Oxanium-Regular.ttf",  36)
         self.basic_text = pygame.font.Font("assets/fonts/Oxanium-Regular.ttf",  24)
         self.font_hint = pygame.font.Font("assets/fonts/Oxanium-Light.ttf",  28)
+        self.font_hs = pygame.font.Font("assets/fonts/Oxanium-Regular.ttf",  36)
     
         self.player = Player()
         self.boss = None
@@ -149,6 +150,8 @@ class Game:
             # prechod z menu
                 if self.state == "MENU":
                     self._play_music(self.menu_song, True)
+                    self._restart_game()
+                    self.paused = False
                     if event.key == pygame.K_UP:
                         self.menu_index = (self.menu_index - 1) % len(self.menu_items)
                     elif event.key == pygame.K_DOWN:
@@ -156,6 +159,7 @@ class Game:
                     elif event.key == pygame.K_RETURN:
                         choice = self.menu_items[self.menu_index]
                         if choice == "SPUSTIT HRU":
+                        
                             self.state = "NAME_INPUT"
                         elif choice == "NASTAVENÍ":
                             self.state = "SETTINGS"
@@ -218,18 +222,21 @@ class Game:
                         self.bullets.append(new_bullet)
                 # navrat do menu
                 if event.key == pygame.K_ESCAPE:
-                    if self.state == "GAME_OVER" or self.state == "VICTORY" or self.state == "HIGHSCORE":
+                    if self.state == "GAME_OVER" or self.state == "VICTORY" or self.state == "HIGHSCORE" or self.paused:
                         self.state = "MENU"
                 # zebricek
                 if event.key == pygame.K_h:
                     if self.state == "VICTORY" or self.state == "MENU" or self.state == "GAME_OVER":
                         self.state = "HIGHSCORE"
+               
+
                 if event.key == pygame.K_q:
                     if self.paused:
                         self.running = False
                 # restart   
                 if self.game_over or self.victory or self.paused:
                     if event.key == pygame.K_r:
+                        self.paused = False
                         self._restart_game()
 
     def _restart_game(self) -> None:
@@ -257,6 +264,7 @@ class Game:
         """
         self.wave_active = True
         self.spawn_queue.clear()
+        self.spawn_q_timer = 0.0
         
         padding = 20
         enemy_w = ENEMY_WIDTH
@@ -265,15 +273,18 @@ class Game:
 
         used_cols = []
 
-        for _ in range(self.enemies_in_wave):
+        for i in range(self.enemies_in_wave):
+            if len(used_cols) >= cols:
+                used_cols.clear()
             # vybere nahodny volny "slot"
             col = random.randint(0, cols - 1)
             while col in used_cols:
                 col = random.randint(0, cols - 1)
             used_cols.append(col)
 
+            row = i // cols
             x = col * (enemy_w + padding) + padding
-            y = random.randint(-200, -50)
+            y = -50 - row * 60
             
             self.spawn_queue.append((x, y))
 
@@ -484,12 +495,7 @@ class Game:
         funkce pro vykreslení konecne obrazovyk - game over/vyhra
         :param state: stav hry
         """
-        self.screen.fill((255, 255, 255))
-
-        # b - big text, m - maly text, s - stredni text
-        font_b = pygame.font.SysFont(None, 48)
-        font_s = pygame.font.SysFont(None, 36)
-        font_m = pygame.font.SysFont(None, 28)
+        self.screen.fill((10, 12, 18))
 
         title_text = "PROHRÁL SI" if state == "GAME_OVER" else "VYHRÁL SI!"
         if state == "GAME_OVER":
@@ -497,19 +503,20 @@ class Game:
         else:
             subtext = ("Povedlo se ti odrazit nepřátelský útok a tím předejít katastrofě...")
         
-        title = font_b.render(title_text, True, (0, 0, 0))
-        sub = font_s.render(subtext, True, (0, 0, 0))
-        name = font_m.render(f"Jméno: {self.player_name}", True, (0, 0, 0))
-        score = font_m.render(f"Skóre: {self.score}", True, (0, 0, 0))
-        ufncn = font_m.render("ENTER pro návrat do menu", True, (80, 80, 80))  # ufncn - uz fakt nevim co napsat -> symbolizuje me utrpeni pri psani teto hry
-        csjpnhs = font_m.render("H pro žebříček skóre", True, (80, 80, 0)) # chces se jit podivat na highscore?
+        name = (f"Jméno: {self.player_name}")
+        score = (f"Skóre: {self.score:06d}")
+        ufncn = ("ESC pro návrat do menu")  # ufncn - uz fakt nevim co napsat -> symbolizuje me utrpeni pri psani teto hry
+        csjpnhs = ("H pro žebříček skóre") # chces se jit podivat na highscore?
 
-        self.screen.blit(title, title.get_rect(center=(WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2 - 100)))
-        self.screen.blit(sub, sub.get_rect(center=(WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2 - 40)))
-        self.screen.blit(name, name.get_rect(center=(WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2)))
-        self.screen.blit(score, score.get_rect(center=(WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2 + 40)))
-        self.screen.blit(ufncn, ufncn.get_rect(center=(WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2 + 80)))
-        self.screen.blit(csjpnhs, csjpnhs.get_rect(center=(WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2 + 120)))
+        y = 260
+
+        self.shadow_text(title_text, self.font_title, (220, 60, 60), (255, 255, 255), center=(WINDOW_WIDTH // 2, 140))
+        self.outlined_text(subtext, self.basic_text, (170, 170,170), (125, 180, 0), center=(WINDOW_WIDTH // 2, 200))
+
+        self.outlined_text(name, self.basic_text, (255,255,255), (0,0,255), center=(WINDOW_WIDTH//2, y))
+        self.outlined_text(score, self.basic_text, (255,255,255), (0,255,0), center=(WINDOW_WIDTH//2, y+50))
+        self.shadow_text(ufncn, self.font_hint, (255,255,0), (255, 255, 255), center=(WINDOW_WIDTH//2, WINDOW_HEIGHT - 120))
+        self.shadow_text(csjpnhs, self.font_hint, (255,255,0), (255, 255, 255), center=(WINDOW_WIDTH//2, WINDOW_HEIGHT - 90))
 
         pygame.display.flip()
 
@@ -519,25 +526,19 @@ class Game:
         funkce pro vykresleni highscore zebricku
         """
         
-        self.screen.fill((255, 255, 255))
+        self.screen.fill((0, 0, 0))
 
         y = WINDOW_HEIGHT // 2 - 100 # padding
 
-        font_hs = pygame.font.SysFont(None, 48) # hs jako high score, lol
-        
-        title_hs = font_hs.render("NEJVYŠŠÍ SKÓRE", True, (0, 0, 0))
-        title_rect = title_hs.get_rect(center=(WINDOW_WIDTH // 2, y))
-        self.screen.blit(title_hs, title_rect)
+        self.shadow_text("ŽEBŘÍČEK SKÓRE", self.font_title, (255,255,255), (255,0,0), center=(WINDOW_WIDTH // 2, WINDOW_HEIGHT + 50))
         y += 60
 
         for i, entry in enumerate(self.highscores):
-            text = font_hs.render(f"{i+1}. {entry['name']} - {entry['score']}", True, (0, 0, 0))
-            text_rect = text.get_rect(center=(WINDOW_WIDTH // 2, y))
-            self.screen.blit(text, text_rect)
+            self.outlined_text(f"{i+1}. {entry['name']} - {entry['score']}", self.font_hs, (255,255,255), (0, 255, 135), center=(WINDOW_WIDTH//2, y))
             y += 50
 
-        hint = pygame.font.SysFont(None, 24).render("ESC = ZPĚT", True, (160, 160, 160))
-        self.screen.blit(hint, hint.get_rect(center=(WINDOW_WIDTH // 2, WINDOW_HEIGHT - 60)))
+        self.outlined_text("ESC - návrat do menu", self.font_hint, (244, 244, 166), (255, 100, 210), center=(WINDOW_WIDTH // 2, WINDOW_HEIGHT - 60))
+        self.outlined_text("H - zpět", self.font_hint, (244, 244, 166), (255, 100, 210), center=(WINDOW_WIDTH // 2, WINDOW_HEIGHT - 90))
 
         pygame.display.flip()
 
@@ -594,8 +595,8 @@ class Game:
 
 
         if self.state == "NAME_INPUT":
-            
-            self._draw_game_status("ZADEJ JMENO! ENTER PRO POTVRZENI...", self.player_name + "_", (155, 155, 0))
+            inp = self.shadow_text("ZADEJ JMENO! ENTER PRO POTVRZENI...", self.font_menu, (255,255,255), (255,255, 0), (WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2 - 50))
+            self._draw_game_status(inp, self.player_name + "_", (155, 155, 0))
             pygame.display.flip()
             return
         
@@ -641,7 +642,7 @@ class Game:
         # vykresleni pauzy
         if self.paused:
             txt1=self.shadow_text("HRA POZASTAVENA!", self.font_menu, (255, 255, 255), (255,255,0), (WINDOW_WIDTH // 2, (WINDOW_HEIGHT // 2) - 30))
-            self._draw_game_status(txt1, "R pro restart / Q pro ukončení", (255, 0, 0))
+            self._draw_game_status(txt1, "R - restart hry / Q - ukoncit hru / ESC - menu", (255, 0, 0))
 
         if self.state == "VICTORY" or self.state == "GAME_OVER":
             self._draw_endscreen(self.state)
