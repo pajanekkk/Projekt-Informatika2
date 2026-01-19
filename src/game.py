@@ -470,7 +470,7 @@ class Game:
         :param color: barva textu
         """
 
-        text1 = self.basic_text.render(m_text, True, color)
+        text1 = self.font_menu.render(m_text, True, color)
         text2 = self.font_hint.render(b_text, True, (255, 255, 255))
 
         rect1 = text1.get_rect(center=(WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2 - 20))
@@ -583,7 +583,7 @@ class Game:
                 self.shadow_text(line, self.font_menu, color, (255, 000, 0), (WINDOW_WIDTH//2, y))
                 y += 40
 
-            hint = self.font_hint.render("<-     ->   ESC = BACK", True, (160,160,160))
+            hint = self.font_hint.render("šipky pro navigaci / ESC pro návrat", True, (160,160,160))
             
             self.screen.blit(hint, hint.get_rect(center=(WINDOW_WIDTH//2, 400)))
             pygame.display.flip()
@@ -622,12 +622,14 @@ class Game:
                 b.draw(self.screen)
 
         
-        text_scoliv = (f"Skóre: {self.score} Životy: {self.lives}")
-        text_wave = (f"Vlna: {self.curr_wave}")
+        text_score = (f"Skóre: {self.score:06d}")
+        text_lives = (f"Životy: {self.lives}")
+        text_wave = (f"Vlna: {self.curr_wave:02d}")
         text_pause = (f"P pro pauzu")
 
-        self.outlined_text(text_scoliv, self.basic_text, (255,255,255), (0,255, 0), (105,20))
-        self.outlined_text(text_wave, self.basic_text, (255,255,255), (0,255, 0), (50 , 50))
+        self.outlined_text(text_score, self.basic_text, (255,255,255), (0,255, 0), (85,20))
+        self.outlined_text(text_lives, self.basic_text, (255,255,255), (0,255,0), (50, 50))
+        self.outlined_text(text_wave, self.basic_text, (255,255,255), (0,255, 0), (50 , 80))
         self.outlined_text(text_pause, self.basic_text, (255,255,255), (0,255, 0), (725, 20))
         
 
@@ -638,7 +640,7 @@ class Game:
             self._draw_game_status(inp, None, (0, 0, 255))
         # vykresleni pauzy
         if self.paused:
-            txt1=self.shadow_text("HRA POZASTAVENA!", self.font_menu, (255, 0, 0), (0,255,0), (WINDOW_WIDTH // 2, (WINDOW_HEIGHT // 2) - 30))
+            txt1=self.shadow_text("HRA POZASTAVENA!", self.font_menu, (255, 255, 255), (255,255,0), (WINDOW_WIDTH // 2, (WINDOW_HEIGHT // 2) - 30))
             self._draw_game_status(txt1, "R pro restart / Q pro ukončení", (255, 0, 0))
 
         if self.state == "VICTORY" or self.state == "GAME_OVER":
