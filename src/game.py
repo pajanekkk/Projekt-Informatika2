@@ -26,7 +26,11 @@ class Game:
         self.bg = pygame.transform.scale(self.bg, (WINDOW_WIDTH, WINDOW_HEIGHT))
         self.bg_y = 0 # osa y v podstate
         self.bg_speed = 40 # px za sekundu """
-
+        
+        self.font_title = pygame.font.Font("assets/fonts/Oxanium-Bold.ttf",  48)
+        self.font_menu = pygame.font.Font("assets/fonts/Oxanium-Regular.ttf",  36)
+        self.basic_text = pygame.font.Font("assets/fonts/Oxanium-Regular.ttf",  24)
+        self.font_hint = pygame.font.Font("assets/fonts/Oxanium-Light.ttf",  28)
     
         self.player = Player()
         self.boss = None
@@ -465,11 +469,9 @@ class Game:
         :param b_text: podtext
         :param color: barva textu
         """
-        font_m = pygame.font.SysFont(None, 48)
-        font_b = pygame.font.SysFont(None, 28)
 
-        text1 = font_m.render(m_text, True, color)
-        text2 = font_b.render(b_text, True, (255, 255, 255))
+        text1 = self.basic_text.render(m_text, True, color)
+        text2 = self.font_hint.render(b_text, True, (255, 255, 255))
 
         rect1 = text1.get_rect(center=(WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2 - 20))
         rect2 = text2.get_rect(center=(WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2 + 20))
@@ -543,27 +545,30 @@ class Game:
         """
         vykreslovani na obrazovku
         """
-        self.screen.fill((0, 0, 0))
-        font = pygame.font.SysFont(None, 36)
+        self.screen.fill((12, 14, 20))
         if self.state == "MENU":
-             
+
+            self.shadow_text("SPACE DEFENDER", self.font_title, (255,255,255), (100, 200, 0), (WINDOW_WIDTH//2, 100))
             y = 200
             for i, item in enumerate(self.menu_items):
                 color = (255, 255, 255) if i == self.menu_index else (150, 150, 150)
                 prefix = "> " if i == self.menu_index else "  "
-                text = font.render(prefix+item, True, color)
-                self.screen.blit(text, text.get_rect(center=(WINDOW_WIDTH //2, y)))
+                self.shadow_text(prefix+item, self.font_menu, (255,255,255), (255, 000, 0), (WINDOW_WIDTH//2, y))
+                # text = self.font_menu.render(prefix+item, True, color)
+                # self.screen.blit(text, text.get_rect(center=(WINDOW_WIDTH //2, y)))
                 y += 40
             pygame.display.flip()
             return
 
         if self.state == "SETTINGS":
-
+            
+            
             wave_val = self.wave_opts[self.wave_opt_index]
             speed_name = self.enemy_speed_opts[self.enemy_speed_index][1]
             sfx_pct = int(self.sfx_vol * 100)
             music_pct = int(self.music_vol * 100)
 
+            self.shadow_text("NASTAVENÍ", self.font_title, (255,255,255), (100, 200, 0), (WINDOW_WIDTH//2, 100))
 
             lines = [
                 f"Počet vln: {wave_val}",
@@ -572,16 +577,15 @@ class Game:
                 f"Hlasitost hudby: {music_pct}"
             ]
 
-            y = 240
+            y = 220
             for i, line in enumerate(lines):
                 color = (255, 255, 255) if i == self.settings_index else (150, 150, 150)
-                text = font.render(line, True, color)
-                self.screen.blit(text, text.get_rect(center=(WINDOW_WIDTH // 2, y)))
+                self.shadow_text(line, self.font_menu, color, (255, 000, 0), (WINDOW_WIDTH//2, y))
                 y += 40
 
-            hint = pygame.font.SysFont(None, 24).render("<-     ->   ESC = BACK", True, (160,160,160))
+            hint = self.font_hint.render("<-     ->   ESC = BACK", True, (160,160,160))
             
-            self.screen.blit(hint, hint.get_rect(center=(WINDOW_WIDTH//2, 300)))
+            self.screen.blit(hint, hint.get_rect(center=(WINDOW_WIDTH//2, 400)))
             pygame.display.flip()
             return
 
@@ -590,6 +594,7 @@ class Game:
 
 
         if self.state == "NAME_INPUT":
+            
             self._draw_game_status("ZADEJ JMENO! ENTER PRO POTVRZENI...", self.player_name + "_", (155, 155, 0))
             pygame.display.flip()
             return
@@ -617,24 +622,24 @@ class Game:
                 b.draw(self.screen)
 
         
-        # text pro statistiky
-        font = pygame.font.SysFont(None, 24)
+        text_scoliv = (f"Skóre: {self.score} Životy: {self.lives}")
+        text_wave = (f"Vlna: {self.curr_wave}")
+        text_pause = (f"P pro pauzu")
 
-        text_scoliv = font.render(f"Skóre: {self.score} Životy: {self.lives}", True, (255, 255, 255))
-        text_wave = font.render(f"Vlna: {self.curr_wave}", True, (255, 255, 255))
-        text_pause = font.render(f"P pro pauzu", True, (255, 255, 255))
-
-        self.screen.blit(text_scoliv, (10, 10))
-        self.screen.blit(text_wave, (10, 30))
-        self.screen.blit(text_pause, (700, 10))
+        self.outlined_text(text_scoliv, self.basic_text, (255,255,255), (0,255, 0), (105,20))
+        self.outlined_text(text_wave, self.basic_text, (255,255,255), (0,255, 0), (50 , 50))
+        self.outlined_text(text_pause, self.basic_text, (255,255,255), (0,255, 0), (725, 20))
+        
 
 
         # vykresleni mezipauzy u vln
         if self.wave_pause and not self.curr_wave == 0:
-            self._draw_game_status(f"Vlna {self.curr_wave} dokončena", None, (0, 0, 255))
+            inp =self.outlined_text((f"Vlna {self.curr_wave} dokoncena"), self.font_menu, (255,255,255), (255,255, 0), (WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2))
+            self._draw_game_status(inp, None, (0, 0, 255))
         # vykresleni pauzy
         if self.paused:
-            self._draw_game_status("HRA POZASTAVENA!", "R pro restart / Q pro ukončení", (255, 0, 0))
+            txt1=self.shadow_text("HRA POZASTAVENA!", self.font_menu, (255, 0, 0), (0,255,0), (WINDOW_WIDTH // 2, (WINDOW_HEIGHT // 2) - 30))
+            self._draw_game_status(txt1, "R pro restart / Q pro ukončení", (255, 0, 0))
 
         if self.state == "VICTORY" or self.state == "GAME_OVER":
             self._draw_endscreen(self.state)
@@ -688,6 +693,9 @@ class Game:
             music.play(-1 if loop else 0)
         
     def _apply_volume(self):
+        """
+        funkce pro nastaveni hlasitosti
+        """
         self.menu_song.set_volume(self.music_vol)
         self.play_song.set_volume(self.music_vol)
 
@@ -697,3 +705,30 @@ class Game:
         self.explosion_boss_sound.set_volume(self.sfx_vol * 0.6)
         self.losing_sound.set_volume(0.6 * self.sfx_vol)
         
+    def shadow_text(self, text, font, color, shadow_color, center):
+        """
+        funkce pro text se stinem
+        """
+        shadow = font.render(text, True, shadow_color)
+        text_surf = font.render(text, True, color)
+
+        text_rect = text_surf.get_rect(center=center)
+        shadow_rect = shadow.get_rect(center=(center[0] +2, center[1]+2))
+
+        self.screen.blit(shadow, shadow_rect)
+        self.screen.blit(text_surf, text_rect)
+
+    def outlined_text(self, text, font, color, outline, center):
+        """
+        funkce pro obtazeny text
+        """
+        base_text = font.render(text, True, color)
+        outline_text = font.render(text, True, outline)
+
+        base_rect = base_text.get_rect(center=center)
+
+        for dx, dy in [(-1,0),(1,0),(0,-1),(0,1)]:
+            outline_rect = outline_text.get_rect(center=(center[0]+dx, center[1]+dy))
+            self.screen.blit(outline_text, outline_rect)
+        
+        self.screen.blit(base_text, base_rect)

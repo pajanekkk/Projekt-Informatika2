@@ -3,6 +3,7 @@ import pygame
 
 
 
+
 def main():
     game = Game()
     game.run()
