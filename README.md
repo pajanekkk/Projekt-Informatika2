@@ -1,16 +1,53 @@
-*Autor: des. ček. Pavel Hovjadský*
-*Datum vytvoření: 19.11.2025*
+# Drone Destroyer
 
-# Space defender
+**Drone Destroyer** je 2D arkádová hra vytvořená v jazyce **Python** pomocí knihovny **Pygame**. Hra funguje na principu klasiky Space Defender, ale je výrazně upravena, 
+Hráč se ujímá role pilota stíhačky **F-16**, jehož úkolem je bránit noční město před vlnami nepřátelských bezpilotních dronů. Je nutné se probojovat až k šéfovi, **experimentálnímu letadlu**, které vyvinul nepřítel a které zvládně **vyrábět a vypouštět drony za letu**, Jsou informace i o tom, že zvladne **lítat dozadu**. 
 
-Tématem je klasický Space defender typ hry, hráč se bude pohybovat po mapě a střílet objekty-nepřátele a překážky
+---
 
-- Cíle projektu:
-    - Zpracovat pohyb hráče
-    - Načtení mapy
-    - Zásahy, poškození, srážka objektu
-    - Zaznamenávání nejvyššího skóre
-    - Herní UI
+## Gameplay
+
+- Ovládáš stíhačku F-16
+- Přilétají **vlny nepřátelských dronů**
+- Každá další vlna je náročnější
+- Pokud nepřítel proletí pod obrazovku → ztrácíš skóre
+- Po poslední vlně tě čeká **boss fight**
+- Hra končí **vítězstvím** nebo **prohrou**
+
+---
+
+## Hlavní funkce
+
+-  **Systém vln nepřátel** s postupným zvyšováním obtížnosti  
+-  **Bezpečný spawn systém** (žádné překrývání nepřátel)
+-  **Výbuchy a vizuální efekty**
+-  **Boss s unikátním chováním**
+-  **Skórovací systém** (zabití × únik nepřátel)
+-  **Highscore žebříček**
+-  **Oddělené nastavení hlasitosti hudby a SFX**
+-  **Settings menu**:
+  - počet vln
+  - rychlost nepřátel
+  - hlasitost hudby a zvuků
+-  Vlastní **UI design** (menu, settings, end screen)
+
+---
+
+## Ovládání
+
+| Klávesa | Akce |
+|------|------|
+| ← → ↑ ↓| Pohyb letadla |
+| SPACE | Střelba |
+| ↑ ↓ | Navigace v menu |
+| ENTER | Potvrzení |
+| ESC / P | Zpět / pauza |
+| H | Zobrazení žebříčku skóre |
+
+---
+
+## Struktura projektu
+
 
 ```
 /Projekt-Informatika2/
@@ -18,13 +55,57 @@ Tématem je klasický Space defender typ hry, hráč se bude pohybovat po mapě 
 |-- main.py                # Hlavní soubor
 |
 |-- src/
-|   |-- enemies.py         # TODO: Implementace třídy pro nepřátele
+|   |-- game.py            # Hlavní třída hry (herní smyčka, stav)
+|   |-- enemy.py         # Implementace třídy pro nepřátele
 |   |-- bullet.py          # Implementace třídy pro střelbu
 |   |-- player.py          # Implementace třídy pro hráče
-|   |-- game.py            # Hlavní třída hry (herní smyčka, stav)
+|   |-- boss_bullet.py     # Implementace třídy pro střelbu bosse
+|   |-- explosion.py       # Implementace třídy pro výbuch
+|   |-- boss.py            # Implementace třídy pro bosse
 |   |-- settings.py        # Nastavení hry
+|
+|-- assets/
+|   |-- fonts/
+|   |   |-- Oxanium-Bold.ttf
+|   |   |-- Oxanium-Light.ttf
+|   |   |-- Oxanium-Regular.ttf
+|   |-- img/
+|   |   |-- explosion/
+|    |    |    |-- exp_{i}
+|   |   |-- boss_rocket.png
+|   |   |-- boss.png
+|   |   |-- bullet.png
+|   |   |-- enemy.png
+|   |   |-- loss_bg.png
+|   |   |-- menu_bg.png
+|   |   |-- play_bg.png
+|   |   |-- player.png
+|   |   |-- win_bg.png
+|   |-- sounds/
+|   |   |-- boss_hit-player.wav
+|   |   |-- collision.wav
+|   |   |-- explosion_boss_sound.wav
+|   |   |-- losing.wav
+|   |   |-- menu.wav
+|   |   |-- playing1.wav
+|   |   |-- shoot.wav
+|   |   |-- 
+|   |
 |-- .gitignore             # Ignoruje zkompilované soubory
 |-- README.md              # Popis projektu
 ```
 
+---
 
+## Použité nástroje
+
+- **Python 3.13.7**
+- **Pygame**
+- Vlastní assety (pozadí, efekty) - zvuky: freesound.org || art: ChatGPT
+- KolourPaint - pro úpravu arts
+- Vlastní fonty (Oxanium)
+
+---
+
+### DISCLAIMER
+V tomto programu byla v omezené míře použita **generativní AI**. Jednalo se primárně o assety jako jsou **obrázky**, popřípadě pro **bugfixing**
