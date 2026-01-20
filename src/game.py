@@ -528,9 +528,9 @@ class Game:
         y = 260
 
         self.shadow_text(title_text, self.font_title, (220, 60, 60), (255, 255, 255), center=(WINDOW_WIDTH // 2, 140))
-        self.outlined_text(subtext, self.basic_text, (170, 170,170), (125, 180, 0), center=(WINDOW_WIDTH // 2, 200))
+        self.outlined_text(subtext, self.basic_text, (255, 255, 255), (0, 255, 0), center=(WINDOW_WIDTH // 2, 200))
 
-        self.outlined_text(name, self.basic_text, (255,255,255), (0,0,255), center=(WINDOW_WIDTH//2, y))
+        self.outlined_text(name, self.basic_text, (255,255,255), (0,255,120), center=(WINDOW_WIDTH//2, y))
         self.outlined_text(score, self.basic_text, (255,255,255), (0,255,0), center=(WINDOW_WIDTH//2, y+50))
         self.shadow_text(ufncn, self.font_hint, (255,255,0), (255, 255, 255), center=(WINDOW_WIDTH//2, WINDOW_HEIGHT - 120))
         self.shadow_text(csjpnhs, self.font_hint, (255,255,0), (255, 255, 255), center=(WINDOW_WIDTH//2, WINDOW_HEIGHT - 90))
