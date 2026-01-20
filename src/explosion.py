@@ -13,7 +13,7 @@ class Explosion:
         if is_boss:
             self.frames = [pygame.transform.scale(img, (140, 140)) for img in Explosion._raw_frames]
         else:
-            self.frames = [pygame.transform.scale(img, (50, 50)) for img in Explosion._raw_frames]
+            self.frames = [pygame.transform.scale(img, (60, 60)) for img in Explosion._raw_frames]
 
         self.index = 0
         self.timer = 0.0

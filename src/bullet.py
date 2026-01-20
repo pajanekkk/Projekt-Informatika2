@@ -13,8 +13,8 @@ class Bullet:
     Trida pro strelu
     """
     # nacitam na urovni tridy, at nemusim pri kazdem vystrelu nacitat obrazek
-    image = pygame.image.load("assets/img/bullet2.png")
-    image = pygame.transform.scale(image, (50, 50))
+    image = pygame.image.load("assets/img/bullet.png")
+    image = pygame.transform.scale(image, (30, 50))
 
     def __init__(self, start_x: float, start_y: float) -> None:
         """

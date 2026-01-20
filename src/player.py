@@ -12,7 +12,7 @@ class Player:
     """
     def __init__(self) -> None:
         
-        self.image = pygame.image.load("assets/img/player2.png").convert_alpha()
+        self.image = pygame.image.load("assets/img/player.png").convert_alpha()
         self.image = pygame.transform.scale(self.image, (70, 70))
 
         self.rect = self.image.get_rect(center=(WINDOW_WIDTH // 2, WINDOW_HEIGHT - 80))

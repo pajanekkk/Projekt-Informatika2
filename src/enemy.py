@@ -16,7 +16,7 @@ class Enemy:
         """
         start_x, start_y - pocatecni pozice
         """
-        self.image = pygame.image.load("assets/img/enemy2.png").convert_alpha()
+        self.image = pygame.image.load("assets/img/enemy.png").convert_alpha()
         self.image = pygame.transform.scale(self.image, (60, 60))
 
         self.rect = self.image.get_rect(x = start_x,  y = start_y)

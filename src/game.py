@@ -18,15 +18,22 @@ class Game:
         pygame.init()
 
         self.screen = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
-        pygame.display.set_caption("ÚTOK DRONŮ")
+        pygame.display.set_caption("DRONE DESTROYER")
 
         self.clock = pygame.time.Clock()
 
-        """ self.bg = pygame.image.load("assets/img/bg.png").convert()
-        self.bg = pygame.transform.scale(self.bg, (WINDOW_WIDTH, WINDOW_HEIGHT))
-        self.bg_y = 0 # osa y v podstate
-        self.bg_speed = 40 # px za sekundu """
+        self.menu_bg = pygame.image.load("assets/img/menu.png").convert()
+        self.menu_bg = pygame.transform.scale(self.menu_bg, (WINDOW_WIDTH, WINDOW_HEIGHT))
         
+        self.play_bg = pygame.image.load("assets/img/play_bg.png").convert()
+        self.play_bg = pygame.transform.scale(self.play_bg, (WINDOW_WIDTH, WINDOW_HEIGHT))
+
+        self.win_bg = pygame.image.load("assets/img/win_bg.png").convert()
+        self.win_bg = pygame.transform.scale(self.win_bg, (WINDOW_WIDTH, WINDOW_HEIGHT))
+
+        self.loss_bg = pygame.image.load("assets/img/loss_bg.png").convert()
+        self.loss_bg = pygame.transform.scale(self.loss_bg, (WINDOW_WIDTH, WINDOW_HEIGHT))
+
         self.font_title = pygame.font.Font("assets/fonts/Oxanium-Bold.ttf",  48)
         self.font_menu = pygame.font.Font("assets/fonts/Oxanium-Regular.ttf",  36)
         self.basic_text = pygame.font.Font("assets/fonts/Oxanium-Regular.ttf",  24)
@@ -495,7 +502,10 @@ class Game:
         funkce pro vykreslení konecne obrazovyk - game over/vyhra
         :param state: stav hry
         """
-        self.screen.fill((10, 12, 18))
+        if state == "GAME_OVER":
+            self.screen.blit(self.loss_bg, (0, 0))
+        elif state == "VICTORY":
+            self.screen.blit(self.win_bg, (0, 0))
 
         title_text = "PROHRÁL SI" if state == "GAME_OVER" else "VYHRÁL SI!"
         if state == "GAME_OVER":
@@ -530,7 +540,7 @@ class Game:
 
         y = WINDOW_HEIGHT // 2 - 100 # padding
 
-        self.shadow_text("ŽEBŘÍČEK SKÓRE", self.font_title, (255,255,255), (255,0,0), center=(WINDOW_WIDTH // 2, WINDOW_HEIGHT + 50))
+        self.shadow_text("ŽEBŘÍČEK SKÓRE", self.font_title, (255,255,255), (255,0,0), center=(WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2 - 200))
         y += 60
 
         for i, entry in enumerate(self.highscores):
@@ -538,7 +548,6 @@ class Game:
             y += 50
 
         self.outlined_text("ESC - návrat do menu", self.font_hint, (244, 244, 166), (255, 100, 210), center=(WINDOW_WIDTH // 2, WINDOW_HEIGHT - 60))
-        self.outlined_text("H - zpět", self.font_hint, (244, 244, 166), (255, 100, 210), center=(WINDOW_WIDTH // 2, WINDOW_HEIGHT - 90))
 
         pygame.display.flip()
 
@@ -546,17 +555,15 @@ class Game:
         """
         vykreslovani na obrazovku
         """
-        self.screen.fill((12, 14, 20))
+        self.screen.blit(self.menu_bg, (0, 0))
         if self.state == "MENU":
 
-            self.shadow_text("SPACE DEFENDER", self.font_title, (255,255,255), (100, 200, 0), (WINDOW_WIDTH//2, 100))
+            self.shadow_text("DRONE DESTROYER", self.font_title, (255,255,255), (100, 255, 0), (WINDOW_WIDTH//2, 100))
             y = 200
             for i, item in enumerate(self.menu_items):
                 color = (255, 255, 255) if i == self.menu_index else (150, 150, 150)
                 prefix = "> " if i == self.menu_index else "  "
-                self.shadow_text(prefix+item, self.font_menu, (255,255,255), (255, 000, 0), (WINDOW_WIDTH//2, y))
-                # text = self.font_menu.render(prefix+item, True, color)
-                # self.screen.blit(text, text.get_rect(center=(WINDOW_WIDTH //2, y)))
+                self.shadow_text(prefix+item, self.font_menu, (255,255,255), (75, 0, 255), (WINDOW_WIDTH//2, y))
                 y += 40
             pygame.display.flip()
             return
@@ -600,8 +607,7 @@ class Game:
             pygame.display.flip()
             return
         
-        """ self.screen.blit(self.bg, (0, self.bg_y))
-        self.screen.blit(self.bg, (0, self.bg_y - WINDOW_HEIGHT)) """
+        self.screen.blit(self.play_bg, (0,0))
 
         self.player.draw(self.screen)
 
