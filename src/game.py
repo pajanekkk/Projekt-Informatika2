@@ -89,7 +89,10 @@ class Game:
         self.play_song = pygame.mixer.Sound("assets/sounds/playing1.wav")
         self.losing_sound = pygame.mixer.Sound("assets/sounds/losing.wav")
         self.explosion_boss_sound = pygame.mixer.Sound("assets/sounds/explosion_boss_sound.wav")
-        
+        self.victory_song = pygame.mixer.Sound("assets/sounds/victory_song.wav")
+        self.game_over_song = pygame.mixer.Sound("assets/sounds/game_over_song.wav")
+
+
         self.curr_music = None
 
         self.state = "MENU"
@@ -263,6 +266,7 @@ class Game:
         self.wave_p_timer = 0.0
         self.victory = False
         self.curr_wave = self.curr_wave + 1
+        self.player_name = ""
         self._start_wave()
 
     def _start_wave(self) -> None:
@@ -347,6 +351,7 @@ class Game:
         if self.lives <= 0:
             self._play_music(self.losing_sound, False)
             self.state = "GAME_OVER"
+            self._play_music(self.game_over_song, True)
         # strela hrace vs boss
         if self.boss:
             for bullet in self.bullets[:]:
@@ -373,6 +378,7 @@ class Game:
                         self.boss = None
                         self._play_music(self.losing_sound, False)
                         self.state = "GAME_OVER"
+                        self._play_music(self.game_over_song, True)
         
     
     def _update(self, dt: float) -> None:
@@ -414,7 +420,7 @@ class Game:
         remaining_enemies = []
         for enemy in self.enemies:
             if enemy.is_offscreen():
-                self.score -= 50
+                self.score -= 150
             else:
                 remaining_enemies.append(enemy)
         self.enemies = remaining_enemies
@@ -471,6 +477,7 @@ class Game:
                 self.boss_dying = False
                 self.boss_death_timer = 0.0
                 self.state = "VICTORY"
+                self._play_music(self.victory_song, True)
                 self._save_highscore()
                 self.boss_bullets.clear()
 
@@ -597,8 +604,6 @@ class Game:
             pygame.display.flip()
             return
 
-        if self.state == "HIGHSCORE":
-            self._draw_hs()
 
 
         if self.state == "NAME_INPUT":
@@ -648,7 +653,8 @@ class Game:
         # vykresleni pauzy
         if self.paused:
             txt1=self.shadow_text("HRA POZASTAVENA!", self.font_menu, (255, 255, 255), (255,255,0), (WINDOW_WIDTH // 2, (WINDOW_HEIGHT // 2) - 30))
-            self._draw_game_status(txt1, "R - restart hry / Q - ukoncit hru / ESC - menu", (255, 0, 0))
+            txt2 = self.outlined_text("R - restart hry / Q - ukoncit hru / ESC - menu", self.basic_text, (255,255,255), (0,255,0), (WINDOW_WIDTH // 2, (WINDOW_HEIGHT // 2)))
+            self._draw_game_status(txt1, txt2, (255, 0, 0))
 
         if self.state == "VICTORY" or self.state == "GAME_OVER":
             self._draw_endscreen(self.state)

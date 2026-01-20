@@ -1,7 +1,4 @@
-from src.game import *
-import pygame
-
-
+from src.game import Game
 
 
 def main():

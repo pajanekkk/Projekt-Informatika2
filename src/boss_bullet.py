@@ -10,7 +10,7 @@ class BossBullet:
     Trida pro strelu od bosse
     """
     image = pygame.image.load("assets/img/boss_rocket.png")
-    image = pygame.transform.scale(image, (50, 50))
+    image = pygame.transform.scale(image, (15, 40))
     def __init__(self, start_x: int, start_y: int, dx: int = 0) -> None:
 
         self.rect = BossBullet.image.get_rect(centerx = start_x, y = start_y)
