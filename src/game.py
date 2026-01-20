@@ -576,7 +576,7 @@ class Game:
             sfx_pct = int(self.sfx_vol * 100)
             music_pct = int(self.music_vol * 100)
 
-            self.shadow_text("NASTAVENÍ", self.font_title, (255,255,255), (100, 200, 0), (WINDOW_WIDTH//2, 100))
+            self.shadow_text("NASTAVENÍ", self.font_title, (255,255,255), (0, 200, 0), (WINDOW_WIDTH//2, 100))
 
             lines = [
                 f"Počet vln: {wave_val}",
@@ -588,10 +588,10 @@ class Game:
             y = 220
             for i, line in enumerate(lines):
                 color = (255, 255, 255) if i == self.settings_index else (150, 150, 150)
-                self.shadow_text(line, self.font_menu, color, (255, 000, 0), (WINDOW_WIDTH//2, y))
+                self.shadow_text(line, self.font_menu, color, (0, 170, 50), (WINDOW_WIDTH//2, y))
                 y += 40
 
-            hint = self.font_hint.render("šipky pro navigaci / ESC pro návrat", True, (160,160,160))
+            hint = self.font_hint.render("šipky pro navigaci / ESC pro návrat", True, (180,180,180))
             
             self.screen.blit(hint, hint.get_rect(center=(WINDOW_WIDTH//2, 400)))
             pygame.display.flip()
@@ -602,7 +602,7 @@ class Game:
 
 
         if self.state == "NAME_INPUT":
-            inp = self.shadow_text("ZADEJ JMENO! ENTER PRO POTVRZENI...", self.font_menu, (255,255,255), (255,255, 0), (WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2 - 50))
+            inp = self.shadow_text("ZADEJ JMENO! ENTER PRO POTVRZENI...", self.font_menu, (255,255,255), (0,207, 50), (WINDOW_WIDTH // 2, WINDOW_HEIGHT // 2 - 50))
             self._draw_game_status(inp, self.player_name + "_", (155, 155, 0))
             pygame.display.flip()
             return
