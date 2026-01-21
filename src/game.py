@@ -35,10 +35,10 @@ class Game:
         self.loss_bg = pygame.transform.scale(self.loss_bg, (WINDOW_WIDTH, WINDOW_HEIGHT))
 
         self.font_title = pygame.font.Font("assets/fonts/Oxanium-Bold.ttf",  48)
-        self.font_menu = pygame.font.Font("assets/fonts/Oxanium-Regular.ttf",  36)
-        self.basic_text = pygame.font.Font("assets/fonts/Oxanium-Regular.ttf",  24)
-        self.font_hint = pygame.font.Font("assets/fonts/Oxanium-Light.ttf",  28)
-        self.font_hs = pygame.font.Font("assets/fonts/Oxanium-Regular.ttf",  36)
+        self.font_menu = pygame.font.Font("assets/fonts/Oxanium-Bold.ttf",  36)
+        self.basic_text = pygame.font.Font("assets/fonts/Oxanium-Bold.ttf",  24)
+        self.font_hint = pygame.font.Font("assets/fonts/Oxanium-Bold.ttf",  28)
+        self.font_hs = pygame.font.Font("assets/fonts/Oxanium-Bold.ttf",  36)
     
         self.player = Player()
         self.boss = None
@@ -366,6 +366,8 @@ class Game:
                 self.explosion_boss_sound.play()
                 self.explosions.append(Explosion(self.boss.rect.centerx - 20, self.boss.rect.centery - 20, is_boss=True))
                 self.explosions.append(Explosion(self.boss.rect.centerx + 20, self.boss.rect.centery + 20, is_boss=True))
+                self.explosions.append(Explosion(self.boss.rect.centerx - 35, self.boss.rect.centery - 45, is_boss=True))
+                self.explosions.append(Explosion(self.boss.rect.centerx + 40, self.boss.rect.centery + 30, is_boss=True))
                     
             for b in self.boss_bullets[:]:
                 if b.rect.colliderect(self.player.rect):
@@ -419,7 +421,7 @@ class Game:
         remaining_enemies = []
         for enemy in self.enemies:
             if enemy.is_offscreen():
-                self.score -= 150
+                self.score -= 500
             else:
                 remaining_enemies.append(enemy)
         self.enemies = remaining_enemies
@@ -461,9 +463,11 @@ class Game:
         if self.boss and self.boss.can_boss_shoot() and not self.boss_dying:
             bx = self.boss.rect.centerx
             by = self.boss.rect.bottom
-            self.boss_bullets.append(BossBullet(bx, by, 0))
-            self.boss_bullets.append(BossBullet(bx, by, -150))
-            self.boss_bullets.append(BossBullet(bx, by, 150))
+            bx_L = self.boss.rect.left
+            bx_R = self.boss.rect.right
+            self.boss_bullets.append(BossBullet(bx, by, 0, 0))
+            self.boss_bullets.append(BossBullet(bx_L + 20, by - 40, -150, -100))
+            self.boss_bullets.append(BossBullet(bx_R - 20, by - 40, 150, -100))
         
         for b in self.boss_bullets:
             b.update(dt)
@@ -475,6 +479,7 @@ class Game:
                 self.boss = None
                 self.boss_dying = False
                 self.boss_death_timer = 0.0
+                self.score += 1000
                 self.state = "VICTORY"
                 self._play_music(self.victory_song, True)
                 self._save_highscore()
@@ -515,11 +520,6 @@ class Game:
         elif state == "VICTORY":
             self.screen.blit(self.win_bg, (0, 0))
 
-        title_text = "PROHRÁL SI" if state == "GAME_OVER" else "VYHRÁL SI!"
-        if state == "GAME_OVER":
-            subtext = "Bohužel si zemřel ve svém letounu při obraně tvého města..."
-        else:
-            subtext = "Povedlo se ti odrazit nepřátelský útok a tím předejít katastrofě..."
         
         name = (f"Jméno: {self.player_name}")
         score = (f"Skóre: {self.score:06d}")
@@ -527,14 +527,27 @@ class Game:
         csjpnhs = ("H pro žebříček skóre") # chces se jit podivat na highscore?
 
         y = 260
+        if state == "GAME_OVER": 
+            title_text = "PROHRÁL SI"
+            subtext = "Bohužel si zemřel ve svém letounu při obraně tvého města..."
+            self.shadow_text(title_text, self.font_title, (255, 50, 50), (100, 0, 0), center=(WINDOW_WIDTH // 2, 140))
+            self.outlined_text(subtext, self.basic_text, (255, 200, 100), (200, 100, 0), center=(WINDOW_WIDTH // 2, 200))        
+            self.outlined_text(name, self.basic_text, (255, 255, 100), (200, 200, 0), center=(WINDOW_WIDTH//2, y))
+            self.outlined_text(score, self.basic_text, (100, 255, 150), (0, 150, 100), center=(WINDOW_WIDTH//2, y+50))
+            self.shadow_text(ufncn, self.font_hint, (255, 255, 150), (150, 150, 0), center=(WINDOW_WIDTH//2, WINDOW_HEIGHT - 120))
+            self.shadow_text(csjpnhs, self.font_hint, (255, 255, 150), (150, 150, 0), center=(WINDOW_WIDTH//2, WINDOW_HEIGHT - 90))
+        
+        elif state == "VICTORY":
+            title_text = "VYHRÁL SI"
+            subtext = "Povedlo se ti odrazit nepřátelský útok a tím předejít katastrofě..."
+            self.shadow_text(title_text, self.font_title, (255, 255, 100), (150, 150, 0), center=(WINDOW_WIDTH // 2, 140))
+            self.outlined_text(subtext, self.basic_text, (255, 200, 100), (200, 100, 0), center=(WINDOW_WIDTH // 2, 200))
+            self.outlined_text(name, self.basic_text, (100, 255, 200), (0, 150, 150), center=(WINDOW_WIDTH//2, y))
+            self.outlined_text(score, self.basic_text, (255, 255, 255), (150, 150, 100), center=(WINDOW_WIDTH//2, y+50))
+            self.shadow_text(ufncn, self.font_hint, (255, 200, 100), (200, 100, 0), center=(WINDOW_WIDTH//2, WINDOW_HEIGHT - 120))
+            self.shadow_text(csjpnhs, self.font_hint, (255, 200, 100), (200, 100, 0), center=(WINDOW_WIDTH//2, WINDOW_HEIGHT - 90))
 
-        self.shadow_text(title_text, self.font_title, (220, 60, 60), (255, 255, 255), center=(WINDOW_WIDTH // 2, 140))
-        self.outlined_text(subtext, self.basic_text, (255, 255, 255), (0, 255, 0), center=(WINDOW_WIDTH // 2, 200))
-
-        self.outlined_text(name, self.basic_text, (255,255,255), (0,255,120), center=(WINDOW_WIDTH//2, y))
-        self.outlined_text(score, self.basic_text, (255,255,255), (0,255,0), center=(WINDOW_WIDTH//2, y+50))
-        self.shadow_text(ufncn, self.font_hint, (255,255,0), (255, 255, 255), center=(WINDOW_WIDTH//2, WINDOW_HEIGHT - 120))
-        self.shadow_text(csjpnhs, self.font_hint, (255,255,0), (255, 255, 255), center=(WINDOW_WIDTH//2, WINDOW_HEIGHT - 90))
+        
 
         pygame.display.flip()
 

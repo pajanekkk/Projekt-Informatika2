@@ -19,7 +19,7 @@ class Explosion:
         self.timer = 0.0
 
         if is_boss:
-            self.frame_rate = 0.08
+            self.frame_rate = 0.30
         else: 
             self.frame_rate = 0.08
         self.image = self.frames[self.index]
