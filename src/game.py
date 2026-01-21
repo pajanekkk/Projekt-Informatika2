@@ -364,10 +364,10 @@ class Game:
                 self.boss_death_timer = 3.0                
                 self.explosions.append(Explosion(self.boss.rect.centerx, self.boss.rect.centery, is_boss=True))
                 self.explosion_boss_sound.play()
-                self.explosions.append(Explosion(self.boss.rect.centerx - 20, self.boss.rect.centery - 20, is_boss=True))
-                self.explosions.append(Explosion(self.boss.rect.centerx + 20, self.boss.rect.centery + 20, is_boss=True))
-                self.explosions.append(Explosion(self.boss.rect.centerx - 35, self.boss.rect.centery - 45, is_boss=True))
-                self.explosions.append(Explosion(self.boss.rect.centerx + 40, self.boss.rect.centery + 30, is_boss=True))
+                self.explosions.append(Explosion(self.boss.rect.centerx - 20, self.boss.rect.centery + 20, is_boss=True))
+                self.explosions.append(Explosion(self.boss.rect.centerx + 20, self.boss.rect.centery - 20, is_boss=True))
+                self.explosions.append(Explosion(self.boss.rect.centerx - 40, self.boss.rect.centery + 40, is_boss=True))
+                self.explosions.append(Explosion(self.boss.rect.centerx + 40, self.boss.rect.centery - 40, is_boss=True))
                     
             for b in self.boss_bullets[:]:
                 if b.rect.colliderect(self.player.rect):
@@ -637,11 +637,12 @@ class Game:
         for enemy in self.enemies:
             enemy.draw(self.screen)
         
-        for exp in self.explosions:
-            exp.draw(self.screen)
-        
         if self.boss:
             self.boss.draw(self.screen)
+        
+        # Exploze se kreslí PO bossovi, aby byly NAD ním
+        for exp in self.explosions:
+            exp.draw(self.screen)
         
         if self.boss and not self.game_over and not self.paused and not self.victory:
             for b in self.boss_bullets:
