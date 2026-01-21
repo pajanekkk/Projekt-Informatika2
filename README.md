@@ -1,7 +1,7 @@
 # Drone Destroyer
 
 **Drone Destroyer** je 2D arkádová hra vytvořená v jazyce **Python** pomocí knihovny **Pygame**. Hra funguje na principu klasiky Space Defender, ale je výrazně upravena, 
-Hráč se ujímá role pilota stíhačky **F-16**, jehož úkolem je bránit noční město před vlnami nepřátelských bezpilotních dronů. Je nutné se probojovat až k šéfovi, **experimentálnímu letadlu**, které vyvinul nepřítel a které zvládně **vyrábět a vypouštět drony za letu**, Jsou informace i o tom, že zvladne **lítat dozadu**. 
+Hráč se ujímá role pilota stíhačky **F-16**, jehož úkolem je bránit noční město před vlnami nepřátelských bezpilotních dronů. Je nutné se probojovat až k šéfovi, **experimentálnímu letadlu**, které vyvinul nepřítel, a které zvládne **vyrábět a vypouštět drony za letu**, Jsou informace i o tom, že zvládne **lítat dozadu**. 
 
 ---
 
@@ -56,7 +56,7 @@ Hráč se ujímá role pilota stíhačky **F-16**, jehož úkolem je bránit no�
 |
 |-- src/
 |   |-- game.py            # Hlavní třída hry (herní smyčka, stav)
-|   |-- enemy.py         # Implementace třídy pro nepřátele
+|   |-- enemy.py           # Implementace třídy pro nepřátele
 |   |-- bullet.py          # Implementace třídy pro střelbu
 |   |-- player.py          # Implementace třídy pro hráče
 |   |-- boss_bullet.py     # Implementace třídy pro střelbu bosse
@@ -89,7 +89,8 @@ Hráč se ujímá role pilota stíhačky **F-16**, jehož úkolem je bránit no�
 |   |   |-- menu.wav
 |   |   |-- playing1.wav
 |   |   |-- shoot.wav
-|   |   |-- 
+|   |   |-- victory_song.wav
+|   |   |-- game_over_song.wav
 |   |
 |-- .gitignore             # Ignoruje zkompilované soubory
 |-- README.md              # Popis projektu
@@ -108,4 +109,4 @@ Hráč se ujímá role pilota stíhačky **F-16**, jehož úkolem je bránit no�
 ---
 
 ### DISCLAIMER
-V tomto programu byla v omezené míře použita **generativní AI**. Jednalo se primárně o assety jako jsou **obrázky**, popřípadě pro **bugfixing**
+V tomto programu byla v omezené míře použita **generativní AI**. Jednalo se primárně o assety jako jsou **obrázky**, popřípadě pro některý **bugfixing**.

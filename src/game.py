@@ -506,7 +506,8 @@ class Game:
 
     def _draw_endscreen(self, state):
         """
-        funkce pro vykreslení konecne obrazovyk - game over/vyhra
+        funkce pro vykreslení konecne obrazovky - game over/vyhra
+
         :param state: stav hry
         """
         if state == "GAME_OVER":
@@ -518,7 +519,7 @@ class Game:
         if state == "GAME_OVER":
             subtext = "Bohužel si zemřel ve svém letounu při obraně tvého města..."
         else:
-            subtext = ("Povedlo se ti odrazit nepřátelský útok a tím předejít katastrofě...")
+            subtext = "Povedlo se ti odrazit nepřátelský útok a tím předejít katastrofě..."
         
         name = (f"Jméno: {self.player_name}")
         score = (f"Skóre: {self.score:06d}")
@@ -723,6 +724,12 @@ class Game:
     def shadow_text(self, text, font, color, shadow_color, center):
         """
         funkce pro text se stinem
+
+        :param text: text, ktery se ma vypsat
+        :param font: font
+        :param color: barva textu
+        :param shadow_color: barva stinu
+        :param center: poloha (centrovani na stred textu)
         """
         shadow = font.render(text, True, shadow_color)
         text_surf = font.render(text, True, color)
@@ -736,6 +743,13 @@ class Game:
     def outlined_text(self, text, font, color, outline, center):
         """
         funkce pro obtazeny text
+
+        :param text: text, ktery se ma vypsat
+        :param font: font
+        :param color: barva textu
+        :param shadow_color: barva stinu
+        :param center: poloha (centrovani na stred textu)
+
         """
         base_text = font.render(text, True, color)
         outline_text = font.render(text, True, outline)
