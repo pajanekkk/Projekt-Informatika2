@@ -87,7 +87,6 @@ class Game:
         self.collision_sound = pygame.mixer.Sound("assets/sounds/collision.wav")
         self.menu_song = pygame.mixer.Sound("assets/sounds/menu.wav")
         self.play_song = pygame.mixer.Sound("assets/sounds/playing1.wav")
-        self.losing_sound = pygame.mixer.Sound("assets/sounds/losing.wav")
         self.explosion_boss_sound = pygame.mixer.Sound("assets/sounds/explosion_boss_sound.wav")
         self.victory_song = pygame.mixer.Sound("assets/sounds/victory_song.wav")
         self.game_over_song = pygame.mixer.Sound("assets/sounds/game_over_song.wav")
@@ -120,7 +119,6 @@ class Game:
         self._apply_volume()
 
         self.running = True
-        self._start_wave()
 
     def run(self) -> None:
         while self.running:
@@ -259,7 +257,7 @@ class Game:
 
         self.lives = PLAYER_LIVES
         self.score = 0
-        self.curr_wave = 14
+        self.curr_wave = 0
         self.enemies_in_wave = 2
 
         self.game_over = False
@@ -349,7 +347,6 @@ class Game:
 
         # game over
         if self.lives <= 0:
-            self._play_music(self.losing_sound, False)
             self.state = "GAME_OVER"
             self._play_music(self.game_over_song, True)
         # strela hrace vs boss
@@ -377,7 +374,6 @@ class Game:
                     self.flash_timer = self.flash_t_dur
                     if self.lives <= 0:
                         self.boss = None
-                        self._play_music(self.losing_sound, False)
                         self.state = "GAME_OVER"
                         self._play_music(self.game_over_song, True)
         
@@ -387,9 +383,6 @@ class Game:
         update funkce(at se to muze hybat po obrazovce atd.)
         """
         
-        """ self.bg_y += self.bg_speed * dt
-        if self.bg_y >= WINDOW_HEIGHT:
-            self.bg_y = 0 """ 
         
         if self.wave_active and self.spawn_queue:
             self.spawn_q_timer += dt
@@ -526,12 +519,12 @@ class Game:
         ufncn = ("ESC pro návrat do menu")  # ufncn - uz fakt nevim co napsat -> symbolizuje me utrpeni pri psani teto hry
         csjpnhs = ("H pro žebříček skóre") # chces se jit podivat na highscore?
 
-        y = 260
+        y = 280
         if state == "GAME_OVER": 
             title_text = "PROHRÁL SI"
             subtext = "Bohužel si zemřel ve svém letounu při obraně tvého města..."
-            self.shadow_text(title_text, self.font_title, (255, 50, 50), (100, 0, 0), center=(WINDOW_WIDTH // 2, 140))
-            self.outlined_text(subtext, self.basic_text, (255, 200, 100), (200, 100, 0), center=(WINDOW_WIDTH // 2, 200))        
+            self.shadow_text(title_text, self.font_title, (255, 50, 50), (255, 255, 255), center=(WINDOW_WIDTH // 2, 140))
+            self.outlined_text(subtext, self.basic_text, (255, 220, 125), (200, 100, 0), center=(WINDOW_WIDTH // 2, 220))        
             self.outlined_text(name, self.basic_text, (255, 255, 100), (200, 200, 0), center=(WINDOW_WIDTH//2, y))
             self.outlined_text(score, self.basic_text, (100, 255, 150), (0, 150, 100), center=(WINDOW_WIDTH//2, y+50))
             self.shadow_text(ufncn, self.font_hint, (255, 255, 150), (150, 150, 0), center=(WINDOW_WIDTH//2, WINDOW_HEIGHT - 120))
@@ -541,7 +534,7 @@ class Game:
             title_text = "VYHRÁL SI"
             subtext = "Povedlo se ti odrazit nepřátelský útok a tím předejít katastrofě..."
             self.shadow_text(title_text, self.font_title, (255, 255, 100), (150, 150, 0), center=(WINDOW_WIDTH // 2, 140))
-            self.outlined_text(subtext, self.basic_text, (255, 200, 100), (200, 100, 0), center=(WINDOW_WIDTH // 2, 200))
+            self.outlined_text(subtext, self.basic_text, (255, 200, 100), (200, 100, 0), center=(WINDOW_WIDTH // 2, 220))
             self.outlined_text(name, self.basic_text, (100, 255, 200), (0, 150, 150), center=(WINDOW_WIDTH//2, y))
             self.outlined_text(score, self.basic_text, (255, 255, 255), (150, 150, 100), center=(WINDOW_WIDTH//2, y+50))
             self.shadow_text(ufncn, self.font_hint, (255, 200, 100), (200, 100, 0), center=(WINDOW_WIDTH//2, WINDOW_HEIGHT - 120))
@@ -715,7 +708,7 @@ class Game:
 
     def _play_music(self, music: pygame.mixer.Sound, loop=True):
         """
-        konecne muzeme hrat hudbicku ve smycce :3
+        konecne muzeme hrat hudbu ve smycce :3
         """
         if self.curr_music != music:
             pygame.mixer.stop()
@@ -733,8 +726,7 @@ class Game:
         self.boss_hit_player_sound.set_volume(self.sfx_vol * 0.6)
         self.collision_sound.set_volume(self.sfx_vol *  0.7)
         self.explosion_boss_sound.set_volume(self.sfx_vol * 0.6)
-        self.losing_sound.set_volume(0.6 * self.sfx_vol)
-        
+
     def shadow_text(self, text, font, color, shadow_color, center):
         """
         funkce pro text se stinem

@@ -1,7 +1,7 @@
 # Drone Destroyer
 
 **Drone Destroyer** je 2D arkádová hra vytvořená v jazyce **Python** pomocí knihovny **Pygame**. Hra funguje na principu klasiky Space Defender, ale je výrazně upravena, 
-Hráč se ujímá role pilota stíhačky **F-16**, jehož úkolem je bránit noční město před vlnami nepřátelských bezpilotních dronů. Je nutné se probojovat až k šéfovi, **experimentálnímu letadlu**, které vyvinul nepřítel, a které zvládne **vyrábět a vypouštět drony za letu**, Jsou informace i o tom, že zvládne **lítat dozadu**. 
+Hráč se ujímá role pilota stíhačky **F-16**, jehož úkolem je bránit noční město před vlnami nepřátelských bezpilotních dronů. Je nutné se probojovat až k šéfovi, **experimentálnímu letounu**, Jsou informace i o tom, že zvládne **lítat dozadu**. Dokud hráč nezničí toto letadlo, útok na jeho domov přinese katastrofální ztráty, neboť ono nepřátelské letadlo dokáže **vyrábět a vypouštět drony za letu**.
 
 ---
 
@@ -19,10 +19,10 @@ Hráč se ujímá role pilota stíhačky **F-16**, jehož úkolem je bránit no�
 ## Hlavní funkce
 
 -  **Systém vln nepřátel** s postupným zvyšováním obtížnosti  
--  **Bezpečný spawn systém** (žádné překrývání nepřátel)
+-  **Safe spawn systém** (žádné překrývání nepřátel)
 -  **Výbuchy a vizuální efekty**
 -  **Boss s unikátním chováním**
--  **Skórovací systém** (zabití × únik nepřátel)
+-  **Skóre systém** (zabití / únik nepřátel)
 -  **Highscore žebříček**
 -  **Oddělené nastavení hlasitosti hudby a SFX**
 -  **Settings menu**:
@@ -85,7 +85,6 @@ Hráč se ujímá role pilota stíhačky **F-16**, jehož úkolem je bránit no�
 |   |   |-- boss_hit-player.wav
 |   |   |-- collision.wav
 |   |   |-- explosion_boss_sound.wav
-|   |   |-- losing.wav
 |   |   |-- menu.wav
 |   |   |-- playing1.wav
 |   |   |-- shoot.wav
@@ -98,12 +97,18 @@ Hráč se ujímá role pilota stíhačky **F-16**, jehož úkolem je bránit no�
 
 ---
 
+## Požadavky
+
+- **Python 3.13.7 (funguje i na verzi 3.10.12)**
+- **Pygame** 
+
 ## Použité nástroje
 
 - **Python 3.13.7**
 - **Pygame**
-- Vlastní assety (pozadí, efekty) - zvuky: freesound.org || art: ChatGPT
-- KolourPaint - pro úpravu arts
+- Vlastní assety (pozadí, efekty) - zvuky: freesound.org || grafika: ChatGPT
+- KolourPaint - pro úpravu grafiky
+- Audacity - úprava zvuků
 - Vlastní fonty (Oxanium)
 
 ---

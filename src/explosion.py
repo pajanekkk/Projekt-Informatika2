@@ -6,7 +6,7 @@ class Explosion:
     Trida pro explozi
     """
     # nacteni raw obrazku bez scalingu
-    _raw_frames = [pygame.image.load(f"assets/img/explosion/exp_{i}.png") for i in range(8)]
+    _raw_frames = [pygame.image.load(f"assets/img/explosion/exp_{i}.png") for i in range(10)]
 
     def __init__(self, start_x, start_y, *, is_boss: bool = False) -> None:
         # tady je scaling
