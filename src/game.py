@@ -162,6 +162,7 @@ class Game:
                     self._play_music(self.menu_song, True)
                     self._restart_game()
                     self.paused = False
+                    self.player_name = ""
                     if event.key == pygame.K_UP:
                         self.menu_index = (self.menu_index - 1) % len(self.menu_items)
                     elif event.key == pygame.K_DOWN:
@@ -258,7 +259,7 @@ class Game:
 
         self.lives = PLAYER_LIVES
         self.score = 0
-        self.curr_wave = 0
+        self.curr_wave = 14
         self.enemies_in_wave = 2
 
         self.game_over = False
@@ -266,7 +267,6 @@ class Game:
         self.wave_p_timer = 0.0
         self.victory = False
         self.curr_wave = self.curr_wave + 1
-        self.player_name = ""
         self._start_wave()
 
     def _start_wave(self) -> None:
@@ -366,7 +366,6 @@ class Game:
                 self.explosion_boss_sound.play()
                 self.explosions.append(Explosion(self.boss.rect.centerx - 20, self.boss.rect.centery - 20, is_boss=True))
                 self.explosions.append(Explosion(self.boss.rect.centerx + 20, self.boss.rect.centery + 20, is_boss=True))
-                self._save_highscore()
                     
             for b in self.boss_bullets[:]:
                 if b.rect.colliderect(self.player.rect):
@@ -479,6 +478,7 @@ class Game:
                 self.state = "VICTORY"
                 self._play_music(self.victory_song, True)
                 self._save_highscore()
+
                 self.boss_bullets.clear()
 
         self.explosions = [e for e in self.explosions if not e.finished]
